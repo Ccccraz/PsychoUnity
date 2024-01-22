@@ -1,4 +1,3 @@
-using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -8,35 +7,47 @@ namespace Components
 {
     public class SocketComCenter : Singleton<SocketComCenter>
     {
-        public bool StreamAvailable { get; private set; }
-        public byte[] Data { get; private set; }
+        private bool _dataAvailable;
+
+        public bool DataAvailable
+        {
+            get
+            {
+                var value = _dataAvailable;
+                _dataAvailable = false;
+                return value;
+            }
+        }
+
         public int DataSize { get; private set; }
         
         private TcpListener _server;
         private NetworkStream _stream;
 
-        public async void SetServer(string hostname, int port, int bufSize)
+        public async void SetServer(string hostname, int port, byte[] buf)
         {
-            Data = new byte[bufSize];
-            
             _server = new TcpListener(IPAddress.Parse(hostname), port);
             _server.Start();
+            Debug.Log("Server created");
 
-            using var client = await _server.AcceptTcpClientAsync();
+            var client = await _server.AcceptTcpClientAsync();
             Debug.Log("Connected");
             
             _stream = client.GetStream();
-            StreamAvailable = true;
-            ReadMsg();
+            ReadMsg(buf);
         }
 
-        private async void ReadMsg()
+        private async void ReadMsg(byte[] buf)
         {
-            while (_stream.DataAvailable)
+            while (_stream != null)
             {
-                Array.Clear(Data, 0, Data.Length);
-                DataSize = await _stream.ReadAsync(Data, 0, Data.Length);
-            } 
+                
+                DataSize = await _stream.ReadAsync(buf, 0, buf.Length);
+                if (DataSize > 0)
+                {
+                    _dataAvailable = true;
+                }
+            }
         }
 
         public void SendStringAsync(string msg)
@@ -59,7 +70,6 @@ namespace Components
         public void CloseServer()
         {
             _server.Stop();
-            _stream.DisposeAsync();
         }
     }
 }
