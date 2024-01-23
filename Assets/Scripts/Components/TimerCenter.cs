@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -15,7 +16,7 @@ namespace Components
         {
             if (_timerDic.ContainsKey(timerName))
             {
-                Debug.Log("Already exist");
+                Debug.Log($"timer {timerName} already exist");
             }
             else
             {
@@ -34,10 +35,30 @@ namespace Components
                 _timerDic.Add(timerName, action);
             }
         }
-
-        public void RegisterHighResolution()
+        
+        public void RegisterHighResolution(string name)
         {
+            if (_highResolutionTimerDic.TryGetValue(name, out var _))
+            {
+                Debug.Log($"high resolution timer {name} already exist");
+            }
             
+            else
+            {
+                _highResolutionTimerDic.Add(name, () => {});
+            }
+        }
+
+        public void RegisterHighResolution(string name, UnityAction action)
+        {
+            if (_highResolutionTimerDic.TryGetValue(name, out var _))
+            {
+                _highResolutionTimerDic[name] += action;
+            }
+            else
+            {
+                _highResolutionTimerDic.Add(name, action);
+            }
         }
 
         public void Start(string name, int duration)
@@ -48,9 +69,15 @@ namespace Components
             }
         }
 
-        public void StartHighResolution()
+        public void StartHighResolution(string name, int duration)
         {
-            
+            if (_highResolutionTimerDic.TryGetValue(name, out var value))
+            {
+                // TODO add to Threading pool
+                var t = new Thread(new ParameterizedThreadStart(HighResolutionTiming));
+                t.Start();
+                t.Join();
+            }
         }
 
         private static async void Timing(int duration, UnityAction action)
