@@ -3,11 +3,6 @@ using UnityEngine;
 
 namespace Samples.Events
 {
-    enum SampleEvents
-    {
-        UnderAttack
-    }
-
     public class Events : MonoBehaviour
     {
         void Update()
@@ -20,7 +15,7 @@ namespace Samples.Events
 
         private void UnderAttack()
         {
-            EventCenter.Instance.EventTrigger(SampleEvents.UnderAttack);
+            EventCenter.Instance.EventTrigger("UnderAttack");
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Samples.Events
     {
         void Start()
         {
-            EventCenter.Instance.AddEventListener(SampleEvents.UnderAttack, BloodState);
+            EventCenter.Instance.AddEventListener("UnderAttack", BloodState);
         }
 
         private void BloodState()

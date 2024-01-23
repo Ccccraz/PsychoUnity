@@ -9,7 +9,7 @@ namespace Samples.Events
     {
         private void Start()
         {
-            EventCenter.Instance.AddEventListener(SampleEvents.UnderAttack, ReduceHp);
+            EventCenter.Instance.AddEventListener("UnderAttack", ReduceHp);
         }
 
         private void ReduceHp()

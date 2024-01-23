@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine.Events;
 
@@ -37,16 +36,16 @@ namespace Components
         /// <summary>
         /// 事件注册表，全局只能有一个事件注册表
         /// </summary>
-        private readonly Dictionary<Enum, IEventInfo> _eventDic = new Dictionary<Enum, IEventInfo>();
+        private readonly Dictionary<string, IEventInfo> _eventDic = new Dictionary<string, IEventInfo>();
 
-        private readonly Dictionary<Enum, int> _eventCountDic = new Dictionary<Enum, int>();
+        private readonly Dictionary<string, int> _eventCountDic = new Dictionary<string, int>();
 
         /// <summary>
         /// 添加对目标事件的订阅
         /// </summary>
         /// <param name="eventName"> 目标事件名 </param>
         /// <param name="action"> 订阅事件的委托 </param>
-        public void AddEventListener(Enum eventName, UnityAction action)
+        public void AddEventListener(string eventName, UnityAction action)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo eventInfo)
             {
@@ -65,7 +64,7 @@ namespace Components
         /// <param name="eventName"> 目标事件名 </param>
         /// <param name="action"> 订阅事件的委托 </param>
         /// <typeparam name="T"> 向委托传递的参数类型 </typeparam>
-        public void AddEventListener<T>(Enum eventName, UnityAction<T> action)
+        public void AddEventListener<T>(string eventName, UnityAction<T> action)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo<T> eventInfo)
             {
@@ -83,7 +82,7 @@ namespace Components
         /// </summary>
         /// <param name="eventName"> 目标事件名 </param>
         /// <param name="action"> 订阅目标事件的委托 </param>
-        public void RemoveEventListener(Enum eventName, UnityAction action)
+        public void RemoveEventListener(string eventName, UnityAction action)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo eventInfo)
             {
@@ -97,7 +96,7 @@ namespace Components
         /// <param name="eventName"> 目标事件名 </param>
         /// <param name="action"> 订阅目标事件的委托 </param>
         /// <typeparam name="T"> 需要传递的参数类型 </typeparam>
-        public void RemoveEventListener<T>(Enum eventName, UnityAction<T> action)
+        public void RemoveEventListener<T>(string eventName, UnityAction<T> action)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo<T> eventInfo)
             {
@@ -109,7 +108,7 @@ namespace Components
         /// 调用所有订阅了目标事件的委托
         /// </summary>
         /// <param name="eventName"> 目标事件名 </param>
-        public void EventTrigger(Enum eventName)
+        public void EventTrigger(string eventName)
         {
             if (_eventDic.TryGetValue(eventName, out var action) && action is EventInfo eventInfo)
             {
@@ -128,7 +127,7 @@ namespace Components
         /// <param name="eventName"> 目标事件名 </param>
         /// <param name="param"> 需要传递的参数 </param>
         /// <typeparam name="T"> 需要传递参数的类型 </typeparam>
-        public void EventTrigger<T>(Enum eventName, T param)
+        public void EventTrigger<T>(string eventName, T param)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo<T> eventInfo)
             {
@@ -141,12 +140,12 @@ namespace Components
             }
         }
 
-        public bool CheckEvent(Enum eventName)
+        public bool CheckEvent(string eventName)
         {
             return _eventCountDic.ContainsKey(eventName);
         }
 
-        public int GetCount(Enum eventName)
+        public int GetCount(string eventName)
         {
             return _eventCountDic[eventName];
         }
