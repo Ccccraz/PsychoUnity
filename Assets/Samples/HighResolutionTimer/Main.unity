@@ -227,8 +227,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1811894012}
   - component: {fileID: 1811894013}
+  - component: {fileID: 1811894014}
   m_Layer: 0
-  m_Name: Timer
+  m_Name: Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -261,6 +262,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b518767e10ee76746bb4b5c883b049e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1811894014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1811894010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4f604d1cc033549a0be95717f14e77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefix: {fileID: 1811894010}
 --- !u!1 &2043177819
 GameObject:
   m_ObjectHideFlags: 0
