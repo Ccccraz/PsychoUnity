@@ -7,8 +7,10 @@ namespace Samples.Timer
     {
         void Start()
         {
-            TimerCenter.Instance.Create("001", TimerCenter.TimerType.HighResolution);
-            TimerCenter.Instance.SetSchedule("001", 5000, 0, 1, Task1);
+            TimerCenter.Instance.Create("001", TimerCenter.TimerType.Normal);
+            TimerCenter.Instance.SetSchedule("001", 5000, 0, 5, Task1);
+            TimerCenter.Instance.AddTask("001", Task2);
+            TimerCenter.Instance.Start("001");
         }
 
         private void Task1()

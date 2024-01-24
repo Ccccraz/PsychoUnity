@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 using UnityEngine.Events;
+using Debug = UnityEngine.Debug;
 using ThreadPriority = System.Threading.ThreadPriority;
 
 namespace Components
@@ -14,7 +14,7 @@ namespace Components
         private readonly Dictionary<string, TimerBase> _timersDic = new Dictionary<string, TimerBase>();
         private readonly HashSet<string> _timerName = new HashSet<string>();
 
-        public void Create(string name, TimerType type)
+        public void Create(string name, TimerType type, int core = 4)
         {
             if (!_timerName.Add(name))
             {
@@ -22,7 +22,7 @@ namespace Components
                 return;
             }
 
-            _timersDic[name] = type is TimerType.Normal ? new TimerNormal() : new TimerHighResolution();
+            _timersDic[name] = type is TimerType.Normal ? new TimerNormal() : new TimerHighResolution(core);
         }
 
         public void SetSchedule(string name, int duration, int delay = 0, int times = 1, UnityAction action = null)
@@ -170,14 +170,17 @@ namespace Components
         private readonly Thread _timingThread;
         private bool _keepThread;
         private bool _startTiming;
+
+        private readonly IntPtr _core;
         
-        public TimerHighResolution()
+        public TimerHighResolution(int core)
         {
             _timingThread = new Thread(Timing)
             {
                 Priority = ThreadPriority.Highest
             };
             _keepThread = true;
+            _core = (IntPtr)core;
             _timingThread.Start();
         }
 
@@ -210,6 +213,11 @@ namespace Components
         
         private void Timing()
         {
+            var threadHandle = GetCurrentThread();
+            var affinityMask = _core;
+            
+            SetThreadAffinityMask(threadHandle, affinityMask);
+            
             var count = 0;
             long startPoint = 0;
             long endPoint = 0;
@@ -260,5 +268,8 @@ namespace Components
         
         [DllImport("kernel32.dll")]
         private static extern IntPtr SetThreadAffinityMask(IntPtr hThread, IntPtr dwThreadAffinityMask);
+        
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr GetCurrentThread();
     }
 }
