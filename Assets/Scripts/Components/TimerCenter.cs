@@ -1,110 +1,252 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
+using ThreadPriority = System.Threading.ThreadPriority;
 
 namespace Components
 {
     public class TimerCenter : Singleton<TimerCenter>
     {
-        private readonly Dictionary<string, UnityAction> _timerDic = new Dictionary<string, UnityAction>();
-        private readonly Dictionary<string, UnityAction> _highResolutionTimerDic = new Dictionary<string, UnityAction>();
+        private readonly Dictionary<string, TimerBase> _timersDic = new Dictionary<string, TimerBase>();
+        private readonly HashSet<string> _timerName = new HashSet<string>();
 
-        public void Register(string timerName)
+        public void Create(string name, TimerType type)
         {
-            if (_timerDic.ContainsKey(timerName))
+            if (!_timerName.Add(name))
             {
-                Debug.Log($"timer {timerName} already exist");
+                Debug.Log($"Timer {name} already exist");
+                return;
+            }
+
+            _timersDic[name] = type is TimerType.Normal ? new TimerNormal() : new TimerHighResolution();
+        }
+
+        public void SetSchedule(string name, int duration, int delay = 0, int times = 1, UnityAction action = null)
+        {
+            if (!_timerName.Contains(name))
+            {
+                Debug.Log($"Timer {name} does not exist.");
+                return;
+            }
+
+            if (_timersDic.TryGetValue(name, out var timer))
+            {
+                timer.SetTimer(duration, delay, times, action);
             }
             else
             {
-                _timerDic.Add(timerName, null);
+                Debug.Log($"Timer {name} was not found in the dic");
             }
         }
 
-        public void Register(string timerName, UnityAction action)
+        public void AddTask(string name, UnityAction action)
         {
-            if (_timerDic.ContainsKey(timerName))
+            if (!_timerName.Contains(name))
             {
-                _timerDic[timerName] += action;
+                Debug.Log($"Timer {name} does not exist.");
+                return;
+            }
+
+            if (_timersDic.TryGetValue(name, out var timer))
+            {
+                timer.AddTask(action);
             }
             else
             {
-                _timerDic.Add(timerName, action);
-            }
-        }
-        
-        public void RegisterHighResolution(string name)
-        {
-            if (_highResolutionTimerDic.TryGetValue(name, out var _))
-            {
-                Debug.Log($"high resolution timer {name} already exist");
+                Debug.Log($"Timer {name} was not found in the dic");
             }
             
+        }
+
+        public void Start(string name)
+        {
+            if (!_timerName.Contains(name))
+            {
+                Debug.Log($"Timer {name} does not exist.");
+                return;
+            }
+
+            if (_timersDic.TryGetValue(name, out var timer))
+            {
+                timer.Start();
+            }
             else
             {
-                _highResolutionTimerDic.Add(name, () => {});
+                Debug.Log($"Timer {name} was not found in the dic");
             }
         }
 
-        public void RegisterHighResolution(string name, UnityAction action)
+        public void Close(string name)
         {
-            if (_highResolutionTimerDic.TryGetValue(name, out var _))
+            if (!_timerName.Contains(name))
             {
-                _highResolutionTimerDic[name] += action;
+                return;
             }
-            else
+
+            if (_timersDic.TryGetValue(name, out var timer))
             {
-                _highResolutionTimerDic.Add(name, action);
+                timer.Destroy();
+                _timerName.Remove(name);
+                _timersDic.Remove(name);
             }
         }
 
-        public void Start(string name, int duration)
+        public enum TimerType
         {
-            if (_timerDic.TryGetValue(name, out var value))
+            Normal,
+            HighResolution
+        }
+    }
+
+    public abstract class TimerBase
+    {
+        public abstract void SetTimer(int duration, int delay, int times, UnityAction action);
+
+        public abstract void Start();
+
+        public abstract void AddTask(UnityAction action);
+
+        public abstract void Destroy();
+
+    }
+
+    public class TimerNormal : TimerBase
+    {
+        private int _duration;
+        private int _delay;
+        private int _times;
+        private UnityAction _action;
+
+        public override void SetTimer(int duration, int delay, int times, UnityAction action)
+        {
+            _duration = duration;
+            _delay = delay;
+            _times = times;
+            _action = action;
+        }
+
+        public override void Start()
+        {
+            Timing();
+        }
+
+        public override void AddTask(UnityAction action)
+        {
+            _action += action;
+        }
+
+        public override void Destroy() {
+            
+        }
+
+        private async void Timing()
+        {
+            if (_delay > 0)
             {
-                Timing(duration, value);
+                await Task.Delay(_delay);
             }
-        }
 
-        public void StartHighResolution(string name, int duration)
-        {
-            if (_highResolutionTimerDic.TryGetValue(name, out var value))
+            var count = 0;
+            while (count < _times)
             {
-                // TODO add to Threading pool
-                var t = new Thread(new ParameterizedThreadStart(HighResolutionTiming));
-                t.Start();
-                t.Join();
+                await Task.Delay(_duration);
+                _action.Invoke();
+
+                count++;
             }
         }
-
-        private static async void Timing(int duration, UnityAction action)
+    }
+    public class TimerHighResolution : TimerBase
+    {
+        private long _duration; // 
+        private int _delay;
+        private int _times; // Times
+        private UnityAction _action;
+        
+        private readonly Thread _timingThread;
+        private bool _keepThread;
+        private bool _startTiming;
+        
+        public TimerHighResolution()
         {
-            await Task.Delay(duration);
-            action.Invoke();
+            _timingThread = new Thread(Timing)
+            {
+                Priority = ThreadPriority.Highest
+            };
+            _keepThread = true;
+            _timingThread.Start();
         }
 
-        public static void HighResolutionTiming(object obj)
+        public override void SetTimer(int duration, int delay, int times, UnityAction action)
         {
-            var para = (TimerPara)obj;
+            QueryPerformanceFrequency(out var frequency);
+            _duration = frequency / 1000 * duration;
+            _delay = delay;
+            _times = times;
+            _action = action;
+        }
+        
+        public override void AddTask(UnityAction action)
+        {
+            _action += action;
+        }
+
+        public override void Start()
+        {
+            _startTiming = true;
+        }
+
+        public override void Destroy()
+        {
+            _startTiming = false;
+            _keepThread = false;
+            _timingThread.Join();
+        }
+
+        
+        private void Timing()
+        {
             var count = 0;
             long startPoint = 0;
             long endPoint = 0;
-
-            QueryPerformanceCounter(ref startPoint);
-
-            while (true)
+            
+            while (_keepThread)
             {
-                QueryPerformanceCounter(ref endPoint);
-                if ((endPoint - startPoint) > para.Duration)
+
+                while (!_startTiming)
                 {
-                    para.Task.Invoke();
-                    count++;
-                    if (count >= para.Count)
+                    
+                }
+
+                if (_delay > 0)
+                {
+                    QueryPerformanceCounter(ref startPoint);
+                    while (true)
                     {
-                       return; 
+                        QueryPerformanceCounter(ref endPoint);
+                        if ((endPoint - startPoint) > _delay)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                while (count < _times)
+                {
+                    QueryPerformanceCounter(ref startPoint);
+                    while (true)
+                    {
+                        QueryPerformanceCounter(ref endPoint);
+                        if ((endPoint - startPoint) > _duration)
+                        {
+                            _action.Invoke();
+                            count++;
+                            break;
+                        }
                     }
                 }
             }
@@ -115,12 +257,8 @@ namespace Components
 
         [DllImport("kernel32.dll")]
         private static extern bool QueryPerformanceFrequency(out long lpFrequency);
-
-        private struct TimerPara
-        {
-            public float Duration;
-            public int Count;
-            public UnityAction Task;
-        }
+        
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr SetThreadAffinityMask(IntPtr hThread, IntPtr dwThreadAffinityMask);
     }
 }
