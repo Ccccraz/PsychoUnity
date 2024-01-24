@@ -213,10 +213,7 @@ namespace Components
         
         private void Timing()
         {
-            var threadHandle = GetCurrentThread();
-            var affinityMask = _core;
-            
-            SetThreadAffinityMask(threadHandle, affinityMask);
+            SetCPUCore();
             
             var count = 0;
             long startPoint = 0;
@@ -224,38 +221,54 @@ namespace Components
             
             while (_keepThread)
             {
+                WaitForTiming();
+                
+                Delay(ref startPoint, ref endPoint);
+                
+                MainTiming(ref startPoint, ref endPoint, ref count);
+            }
+        }
 
-                while (!_startTiming)
+        private void SetCPUCore()
+        {
+            var threadHandle = GetCurrentThread();
+            SetThreadAffinityMask(threadHandle, _core);
+        }
+
+        private void WaitForTiming()
+        {
+            while (!_startTiming)
+            {
+                
+            }
+        }
+
+        private void Delay(ref long startPoint, ref long endPoint)
+        {
+            if (_delay <= 0) return;
+            QueryPerformanceCounter(ref startPoint);
+            while (true)
+            {
+                QueryPerformanceCounter(ref endPoint);
+                if ((endPoint - startPoint) > _delay)
                 {
-                    
+                    break;
                 }
+            }
+        }
 
-                if (_delay > 0)
+        private void MainTiming(ref long startPoint, ref long endPoint, ref int count)
+        {
+            while (count < _times)
+            {
+                QueryPerformanceCounter(ref startPoint);
+                while (true)
                 {
-                    QueryPerformanceCounter(ref startPoint);
-                    while (true)
-                    {
-                        QueryPerformanceCounter(ref endPoint);
-                        if ((endPoint - startPoint) > _delay)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                while (count < _times)
-                {
-                    QueryPerformanceCounter(ref startPoint);
-                    while (true)
-                    {
-                        QueryPerformanceCounter(ref endPoint);
-                        if ((endPoint - startPoint) > _duration)
-                        {
-                            _action.Invoke();
-                            count++;
-                            break;
-                        }
-                    }
+                    QueryPerformanceCounter(ref endPoint);
+                    if ((endPoint - startPoint) <= _duration) continue;
+                    _action.Invoke();
+                    count++;
+                    break;
                 }
             }
         }
