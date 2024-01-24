@@ -27,72 +27,75 @@ namespace Components
 
         public void SetSchedule(string name, int duration, int delay = 0, int times = 1, UnityAction action = null)
         {
-            if (!_timerName.Contains(name))
+            if (VerifyTimer(name))
             {
-                Debug.Log($"Timer {name} does not exist.");
-                return;
-            }
-
-            if (_timersDic.TryGetValue(name, out var timer))
-            {
-                timer.SetTimer(duration, delay, times, action);
-            }
-            else
-            {
-                Debug.Log($"Timer {name} was not found in the dic");
+                _timersDic[name].SetTimer(duration, delay, times, action);
             }
         }
 
         public void AddTask(string name, UnityAction action)
         {
-            if (!_timerName.Contains(name))
+            if (VerifyTimer(name))
             {
-                Debug.Log($"Timer {name} does not exist.");
-                return;
+                _timersDic[name].AddTask(action);
             }
-
-            if (_timersDic.TryGetValue(name, out var timer))
-            {
-                timer.AddTask(action);
-            }
-            else
-            {
-                Debug.Log($"Timer {name} was not found in the dic");
-            }
-            
         }
 
         public void Start(string name)
         {
-            if (!_timerName.Contains(name))
+            if (VerifyTimer(name))
             {
-                Debug.Log($"Timer {name} does not exist.");
-                return;
-            }
-
-            if (_timersDic.TryGetValue(name, out var timer))
-            {
-                timer.Start();
-            }
-            else
-            {
-                Debug.Log($"Timer {name} was not found in the dic");
+                _timersDic[name].Start();
             }
         }
 
-        public void Close(string name)
+        public void Stop(string name)
+        {
+            if (VerifyTimer(name))
+            {
+                _timersDic[name].Stop();
+            }
+        }
+
+        public void Pause(string name)
+        {
+            if (VerifyTimer(name))
+            {
+                _timersDic[name].Pause();
+            }
+        }
+
+        public void ReStart(string name)
+        {
+            if (VerifyTimer(name))
+            {
+                _timersDic[name].Restart();
+            }
+        }
+
+        public void Destroy(string name)
+        {
+            if (VerifyTimer(name))
+            {
+                _timersDic[name].Destroy();
+            }
+        }
+
+        private bool VerifyTimer(string name)
         {
             if (!_timerName.Contains(name))
             {
-                return;
+                Debug.Log($"Timer {name} does not exist.");
+                return false;
             }
 
-            if (_timersDic.TryGetValue(name, out var timer))
+            if (!_timersDic.ContainsKey(name))
             {
-                timer.Destroy();
-                _timerName.Remove(name);
-                _timersDic.Remove(name);
+                Debug.Log($"Timer {name} was not found in the dic");
+                return false;
             }
+
+            return true;
         }
 
         public enum TimerType
@@ -110,6 +113,12 @@ namespace Components
 
         public abstract void AddTask(UnityAction action);
 
+        public abstract void Pause();
+
+        public abstract void Restart();
+
+        public abstract void Stop();
+
         public abstract void Destroy();
 
     }
@@ -121,6 +130,8 @@ namespace Components
         private int _times;
         private UnityAction _action;
 
+        private Task _taskHandler;
+
         public override void SetTimer(int duration, int delay, int times, UnityAction action)
         {
             _duration = duration;
@@ -131,7 +142,7 @@ namespace Components
 
         public override void Start()
         {
-            Timing();
+            _taskHandler = Timing();
         }
 
         public override void AddTask(UnityAction action)
@@ -139,11 +150,26 @@ namespace Components
             _action += action;
         }
 
-        public override void Destroy() {
-            
+        public override void Stop()
+        {
+            _taskHandler.Dispose();
         }
 
-        private async void Timing()
+        public override void Pause()
+        {
+            _taskHandler.Wait();
+        }
+
+        public override void Restart()
+        {
+            _taskHandler.Start();
+        }
+
+        public override void Destroy(){
+            _taskHandler.Dispose();
+        }
+
+        private async Task Timing()
         {
             if (_delay > 0)
             {
@@ -203,6 +229,25 @@ namespace Components
             _startTiming = true;
         }
 
+        //TODO
+        public override void Pause()
+        {
+        }
+
+        //TODO
+        public override void Restart()
+        {
+        }
+
+        public override void Stop()
+        {
+            _startTiming = false;
+            _duration = 0;
+            _delay = 0;
+            _times = 0;
+            _action = null;
+        }
+
         public override void Destroy()
         {
             _startTiming = false;
@@ -210,7 +255,6 @@ namespace Components
             _timingThread.Join();
         }
 
-        
         private void Timing()
         {
             SetCPUCore();
@@ -257,15 +301,17 @@ namespace Components
             }
         }
 
+        //TODO Use event optimize pause
         private void MainTiming(ref long startPoint, ref long endPoint, ref int count)
         {
-            while (count < _times)
+            while (count < _times && _startTiming)
             {
                 QueryPerformanceCounter(ref startPoint);
-                while (true)
+                while (_startTiming)
                 {
                     QueryPerformanceCounter(ref endPoint);
                     if ((endPoint - startPoint) <= _duration) continue;
+                    Debug.Log($"endPoint: {endPoint}, startPoint: {startPoint}, duration: {_duration}");
                     _action.Invoke();
                     count++;
                     break;
