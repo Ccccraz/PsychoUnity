@@ -12,17 +12,43 @@ namespace PsychoUnity.Manager
     public class TimerManager : Singleton<TimerManager>
     {
         private readonly Dictionary<string, TimerBase> _timersDic = new Dictionary<string, TimerBase>();
-        private readonly HashSet<string> _timerName = new HashSet<string>();
+
+        /// <summary>
+        /// Retrieves the frequency of the performance counter, return the current performance-counter frequency,
+        /// in counts per second.
+        /// </summary>
+        public static long Frequency
+        {
+            get
+            {
+                TimerHighResolution.QueryPerformanceFrequency(out var value);
+                return value;
+            }
+        }
+
+        /// <summary>
+        /// Calling Win32API. Retrieves the current value of the performance counter, which is a high resolution
+        /// (less than 1us) time stamp that can be used for time-interval measurements.
+        /// </summary>
+        /// <returns> the current performance-counter value, in counts </returns>
+        public static long GetTimestamp()
+        {
+            long timestamp = 0;
+            TimerHighResolution.QueryPerformanceCounter(ref timestamp);
+
+            return timestamp;
+        }
 
         public void Create(string name, TimerType type, int core = 4)
         {
-            if (!_timerName.Add(name))
+            if (!_timersDic.ContainsKey(name))
+            {
+                _timersDic[name] = type is TimerType.Normal ? new TimerNormal() : new TimerHighResolution(core);
+            }
+            else
             {
                 Debug.Log($"Timer {name} already exist");
-                return;
             }
-
-            _timersDic[name] = type is TimerType.Normal ? new TimerNormal() : new TimerHighResolution(core);
         }
 
         public void SetSchedule(string name, int duration, int delay = 0, int times = 1, UnityAction action = null)
@@ -83,19 +109,10 @@ namespace PsychoUnity.Manager
 
         private bool VerifyTimer(string name)
         {
-            if (!_timerName.Contains(name))
-            {
-                Debug.Log($"Timer {name} does not exist.");
-                return false;
-            }
+            if (_timersDic.ContainsKey(name)) return true;
+            Debug.Log($"Timer {name} does not exist");
+            return false;
 
-            if (!_timersDic.ContainsKey(name))
-            {
-                Debug.Log($"Timer {name} was not found in the dic");
-                return false;
-            }
-
-            return true;
         }
 
         public enum TimerType
@@ -196,6 +213,10 @@ namespace PsychoUnity.Manager
         private readonly Thread _timingThread;
         private bool _keepThread;
         private bool _startTiming;
+        private bool _pauseTiming;
+
+        private long _startPoint;
+        private long _endPoint;
 
         private readonly IntPtr _core;
         
@@ -232,20 +253,18 @@ namespace PsychoUnity.Manager
         //TODO
         public override void Pause()
         {
+            _pauseTiming = true;
         }
 
         //TODO
         public override void Restart()
         {
+            _pauseTiming = false;
         }
 
         public override void Stop()
         {
             _startTiming = false;
-            _duration = 0;
-            _delay = 0;
-            _times = 0;
-            _action = null;
         }
 
         public override void Destroy()
@@ -260,16 +279,14 @@ namespace PsychoUnity.Manager
             SetCPUCore();
             
             var count = 0;
-            long startPoint = 0;
-            long endPoint = 0;
             
             while (_keepThread)
             {
                 WaitForTiming();
                 
-                Delay(ref startPoint, ref endPoint);
+                Delay();
                 
-                MainTiming(ref startPoint, ref endPoint, ref count);
+                MainTiming(ref count);
             }
         }
 
@@ -283,47 +300,52 @@ namespace PsychoUnity.Manager
         {
             while (!_startTiming)
             {
-                
+                if (_keepThread == false)
+                {
+                    break;
+                }
             }
         }
 
-        private void Delay(ref long startPoint, ref long endPoint)
+        private void Delay()
         {
             if (_delay <= 0) return;
-            QueryPerformanceCounter(ref startPoint);
-            while (true)
+            QueryPerformanceCounter(ref _startPoint);
+            while (_startTiming)
             {
-                QueryPerformanceCounter(ref endPoint);
-                if ((endPoint - startPoint) > _delay)
+                QueryPerformanceCounter(ref _endPoint);
+                if ((_endPoint - _startPoint) > _delay)
                 {
                     break;
                 }
             }
         }
-
-        //TODO Use event optimize pause
-        private void MainTiming(ref long startPoint, ref long endPoint, ref int count)
+        private void MainTiming(ref int count)
         {
+            var duration = _duration;
+            var remainTime = _duration;
+            QueryPerformanceCounter(ref _startPoint);
             while (count < _times && _startTiming)
             {
-                QueryPerformanceCounter(ref startPoint);
-                while (_startTiming)
+                while (_pauseTiming)
                 {
-                    QueryPerformanceCounter(ref endPoint);
-                    if ((endPoint - startPoint) <= _duration) continue;
-                    Debug.Log($"endPoint: {endPoint}, startPoint: {startPoint}, duration: {_duration}");
-                    _action.Invoke();
-                    count++;
-                    break;
+                    duration = remainTime;
+                    QueryPerformanceCounter(ref _startPoint);
                 }
+                remainTime = duration - (_endPoint - _startPoint);
+                QueryPerformanceCounter(ref _endPoint);
+                if (remainTime > 0) continue;
+                _action.Invoke();
+                count++;
+                QueryPerformanceCounter(ref _startPoint);
             }
         }
         
         [DllImport("kernel32.dll")]
-        private static extern bool QueryPerformanceCounter(ref long lpPerformanceCount);
+        public static extern bool QueryPerformanceCounter(ref long lpPerformanceCount);
 
         [DllImport("kernel32.dll")]
-        private static extern bool QueryPerformanceFrequency(out long lpFrequency);
+        public static extern bool QueryPerformanceFrequency(out long lpFrequency);
         
         [DllImport("kernel32.dll")]
         private static extern IntPtr SetThreadAffinityMask(IntPtr hThread, IntPtr dwThreadAffinityMask);
