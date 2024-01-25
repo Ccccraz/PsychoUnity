@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using UnityEngine;
 
-namespace Components
+namespace PsychoUnity.Manager
 {
-    public class SerialComCenter : Singleton<SerialComCenter>
+    public class SerialComManager : Singleton<SerialComManager>
     {
         private readonly Dictionary<string, SerialPort> _serialComDic = new Dictionary<string, SerialPort>();
         

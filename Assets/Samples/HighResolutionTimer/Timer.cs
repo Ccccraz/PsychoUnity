@@ -1,4 +1,4 @@
-using Components;
+using PsychoUnity.Manager;
 using UnityEngine;
 
 namespace Samples.HighResolutionTimer
@@ -7,12 +7,12 @@ namespace Samples.HighResolutionTimer
     {
         private void Awake()
         {
-            TimerCenter.Instance.Create("001", TimerCenter.TimerType.HighResolution);
+            TimerManager.Instance.Create("001", TimerManager.TimerType.HighResolution);
         }
 
         private void OnDestroy()
         {
-            TimerCenter.Instance.Destroy("001");
+            TimerManager.Instance.Destroy("001");
         }
     }
 }

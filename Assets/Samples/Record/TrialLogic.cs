@@ -1,4 +1,4 @@
-using Components;
+using PsychoUnity.Manager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,7 +20,7 @@ namespace Samples.Record
             _data.X = Random.Range(10, 20);
             _data.Y = Random.Range(10, 20);
             _data.Z = Random.Range(10, 20);
-            RecordCenter.Instance.Write("001", ref _data);
+            RecordManager.Instance.Write("001", ref _data);
 
             if (Input.GetKeyDown(KeyCode.Space))
             {

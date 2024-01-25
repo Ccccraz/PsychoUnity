@@ -1,5 +1,5 @@
 using System;
-using Components;
+using PsychoUnity.Manager;
 using UnityEngine;
 
 namespace Samples.Events
@@ -9,7 +9,7 @@ namespace Samples.Events
     {
         private void Start()
         {
-            EventCenter.Instance.AddEventListener("UnderAttack", ReduceHp);
+            EventManager.Instance.AddEventListener("UnderAttack", ReduceHp);
         }
 
         private void ReduceHp()

@@ -7,9 +7,9 @@ using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
 using ThreadPriority = System.Threading.ThreadPriority;
 
-namespace Components
+namespace PsychoUnity.Manager
 {
-    public class TimerCenter : Singleton<TimerCenter>
+    public class TimerManager : Singleton<TimerManager>
     {
         private readonly Dictionary<string, TimerBase> _timersDic = new Dictionary<string, TimerBase>();
         private readonly HashSet<string> _timerName = new HashSet<string>();

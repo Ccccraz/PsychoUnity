@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using Components;
+using PsychoUnity.Manager;
 using UnityEngine;
 
 namespace Samples.Record
@@ -11,12 +11,12 @@ namespace Samples.Record
         void Start()
         {
             _titleName = new[] { "x", "y", "z"};
-            RecordCenter.Instance.AddRecorder("001", "002", _titleName);
+            RecordManager.Instance.AddRecorder("001", "002", _titleName);
         }
 
         private void OnDestroy()
         {
-            RecordCenter.Instance.Close("001"); 
+            RecordManager.Instance.Close("001"); 
         }
     }
     

@@ -1,4 +1,4 @@
-using Components;
+using PsychoUnity.Manager;
 using UnityEngine;
 
 namespace Samples.Events
@@ -15,7 +15,7 @@ namespace Samples.Events
 
         private void UnderAttack()
         {
-            EventCenter.Instance.EventTrigger("UnderAttack");
+            EventManager.Instance.EventTrigger("UnderAttack");
         }
     }
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.Events;
 
-namespace Components
+namespace PsychoUnity.Manager
 {
 
     /// <summary>
@@ -31,7 +31,7 @@ namespace Components
     /// <summary>
     /// 事件中心
     /// </summary>
-    public class EventCenter : Singleton<EventCenter>
+    public class EventManager : Singleton<EventManager>
     {
         /// <summary>
         /// 事件注册表，全局只能有一个事件注册表

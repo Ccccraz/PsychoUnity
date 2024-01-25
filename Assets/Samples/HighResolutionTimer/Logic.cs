@@ -1,5 +1,5 @@
 using System;
-using Components;
+using PsychoUnity.Manager;
 using UnityEngine;
 
 namespace Samples.HighResolutionTimer
@@ -8,9 +8,9 @@ namespace Samples.HighResolutionTimer
     {
         private void Start()
         {
-            TimerCenter.Instance.SetSchedule("001", 2000, 0, 5, TaskOne);
-            TimerCenter.Instance.AddTask("001", TaskTwo);
-            TimerCenter.Instance.Start("001");
+            TimerManager.Instance.SetSchedule("001", 2000, 0, 5, TaskOne);
+            TimerManager.Instance.AddTask("001", TaskTwo);
+            TimerManager.Instance.Start("001");
         }
         private static void TaskOne()
         {
@@ -24,7 +24,7 @@ namespace Samples.HighResolutionTimer
 
         private void OnDestroy()
         {
-            TimerCenter.Instance.Stop("001");
+            TimerManager.Instance.Stop("001");
         }
     }
 }

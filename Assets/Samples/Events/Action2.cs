@@ -1,4 +1,4 @@
-using Components;
+using PsychoUnity.Manager;
 using UnityEngine;
 
 namespace Samples.Events
@@ -7,7 +7,7 @@ namespace Samples.Events
     {
         void Start()
         {
-            EventCenter.Instance.AddEventListener("UnderAttack", BloodState);
+            EventManager.Instance.AddEventListener("UnderAttack", BloodState);
         }
 
         private void BloodState()

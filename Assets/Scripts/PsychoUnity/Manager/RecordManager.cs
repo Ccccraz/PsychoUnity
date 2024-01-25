@@ -5,9 +5,9 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
-namespace Components
+namespace PsychoUnity.Manager
 {
-    public class RecordCenter : Singleton<RecordCenter>
+    public class RecordManager : Singleton<RecordManager>
     {
         private readonly Dictionary<string, StreamWriter> _recorderDic = new Dictionary<string, StreamWriter>();
 

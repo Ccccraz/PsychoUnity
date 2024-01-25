@@ -1,6 +1,6 @@
 using System;
 
-namespace Components
+namespace PsychoUnity.Manager
 {
     public class Singleton<T> where T : new()
     {

@@ -3,9 +3,9 @@ using System.Net.Sockets;
 using System.Text;
 using UnityEngine;
 
-namespace Components
+namespace PsychoUnity.Manager
 {
-    public class SocketComCenter : Singleton<SocketComCenter>
+    public class SocketComManager : Singleton<SocketComManager>
     {
         private bool _dataAvailable;
 
