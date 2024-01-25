@@ -21,7 +21,7 @@ namespace Samples.HighResolutionTimer
 
             if (Input.GetKeyDown(KeyCode.R))
             {
-                TimerManager.Instance.ReStart("001");
+                TimerManager.Instance.Continue("001");
             }
         }
 

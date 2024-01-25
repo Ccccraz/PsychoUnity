@@ -91,11 +91,11 @@ namespace PsychoUnity.Manager
             }
         }
 
-        public void ReStart(string name)
+        public void Continue(string name)
         {
             if (VerifyTimer(name))
             {
-                _timersDic[name].Restart();
+                _timersDic[name].Continue();
             }
         }
 
@@ -132,7 +132,7 @@ namespace PsychoUnity.Manager
 
         public abstract void Pause();
 
-        public abstract void Restart();
+        public abstract void Continue();
 
         public abstract void Stop();
 
@@ -148,6 +148,7 @@ namespace PsychoUnity.Manager
         private UnityAction _action;
 
         private Task _taskHandler;
+        private CancellationTokenSource _cts;
 
         public override void SetTimer(int duration, int delay, int times, UnityAction action)
         {
@@ -172,20 +173,29 @@ namespace PsychoUnity.Manager
             _taskHandler.Dispose();
         }
 
+        /// <summary>
+        /// This method is not yet complete and needs to be implemented further
+        /// </summary>
         public override void Pause()
         {
-            _taskHandler.Wait();
+            // TODO To complete the pause and restart methods 
+            _taskHandler.Dispose();
         }
 
-        public override void Restart()
+
+        /// <summary>
+        /// This method is not yet complete and needs to be implemented further
+        /// </summary>
+        public override void Continue()
         {
-            _taskHandler.Start();
+            // TODO To complete the pause and restart methods 
+            _taskHandler = Timing();
         }
 
         public override void Destroy(){
             _taskHandler.Dispose();
         }
-
+        
         private async Task Timing()
         {
             if (_delay > 0)
@@ -203,6 +213,7 @@ namespace PsychoUnity.Manager
             }
         }
     }
+    
     public class TimerHighResolution : TimerBase
     {
         private long _duration; // 
@@ -257,7 +268,7 @@ namespace PsychoUnity.Manager
         }
 
         //TODO
-        public override void Restart()
+        public override void Continue()
         {
             _pauseTiming = false;
         }
