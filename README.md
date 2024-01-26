@@ -11,7 +11,7 @@ A Unity development framework for behavioral experiment design
 ## Getting Started
 ### Install
 
-You can install PsychoUnity via git URL. You can add `https://github.com/Ccccraz/PsychoUnity.git?path=Assets/Plugins/PsychoUnity` to Package Manager.
+You can install PsychoUnity via git URL. You just need to add `https://github.com/Ccccraz/PsychoUnity.git?path=Assets/Plugins/PsychoUnity` to Package Manager.
 
 ![](https://i.imgur.com/cV3iog6.png)
 
