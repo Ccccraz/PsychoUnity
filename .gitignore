@@ -1,6 +1,11 @@
 Library/
 Logs/
 UserSettings/
+obj/
+Temp/
+
+.idea/
+.vs/
 
 *.csproj
 *.sln
