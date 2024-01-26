@@ -9,3 +9,5 @@ Temp/
 
 *.csproj
 *.sln
+
+Packages/com.unity.testtools.codecoverage/Settings.json
