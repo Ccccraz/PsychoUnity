@@ -23,3 +23,13 @@ You can install PsychoUnity via git URL. You can add `https://github.com/Ccccraz
 - Network Communications Manager
 
 ## [Tutorial](./doc/turorial.md)
+
+## Developers
+
+This repository is a complete Unity project. So you just need to clone this repository and open the project with Unity hub.
+
+> Project built on Unity version 2022.3.14f1 
+
+```sh
+git clone https://github.com/Ccccraz/PsychoUnity.git
+```
