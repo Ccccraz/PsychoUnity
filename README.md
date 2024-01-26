@@ -1,4 +1,5 @@
 # PsychoUnity
+ [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Ccccraz/PsychoUnity/graphs/commit-activity) [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
 
 A Unity development framework for behavioral experiment design
 
