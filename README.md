@@ -2,7 +2,7 @@
 
 A Unity development framework for behavioral experiment design
 
-## Dependency
+## Dependences
 
 - Unity 2022.3
 - `ProjectSettings/Player/Configuration/Scripting Runtime Verion` set to .NET 4.x Equivalent.
