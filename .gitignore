@@ -10,4 +10,4 @@ Temp/
 *.csproj
 *.sln
 
-Packages/com.unity.testtools.codecoverage/Settings.json
+ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
