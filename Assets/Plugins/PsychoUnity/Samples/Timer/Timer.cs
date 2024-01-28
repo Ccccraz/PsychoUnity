@@ -25,6 +25,11 @@ namespace Samples.Timer
             {
                 TimerManager.Instance.Continue("001");
             }
+
+            if (Input.GetKeyDown(KeyCode.O))
+            {
+                TimerManager.Instance.Destroy("001");
+            }
         }
 
         private void Task1()
