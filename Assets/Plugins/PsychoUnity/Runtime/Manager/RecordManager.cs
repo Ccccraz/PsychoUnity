@@ -1,123 +1,101 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 using UnityEngine;
+// ReSharper disable CheckNamespace
 
 namespace PsychoUnity.Manager
 {
     public class RecordManager : Singleton<RecordManager>
     {
-        private readonly Dictionary<string, StreamWriter> _recorderDic = new Dictionary<string, StreamWriter>();
+        private readonly Dictionary<string, Recorder<IRecorderData>> _recorderDic = new();
 
-        private static string GenFile(string recorder, string monkeyName)
+        public void Create<T>(string recorderName, T data) where T : IRecorderData
         {
-            const string prefix = "Assets/Data/";
-            var path = $"{prefix}/{DateTime.Now:yyyyMMdd}/{DateTime.Now:HHmmss}_{recorder}_{monkeyName}.csv";
-
-            if (!File.Exists(path))
+            if (_recorderDic.ContainsKey(recorderName))
             {
-                var directorPath = Path.GetDirectoryName(path);
-                
-                if (string.IsNullOrEmpty(directorPath))
-                {
-                    throw new Exception("未获得有效目录");
-                }
-                
-                if (!Directory.Exists(directorPath))
-                {
-                    Directory.CreateDirectory(directorPath);
-                }
-                
-                try
-                {
-                    File.Create(path).Close();
-                }
-                catch (Exception ex)
-                {
-                    Debug.Log(ex.Message);
-                }
-            };
-            
-            return path;
+                Debug.Log($"Recorder {recorderName} already exist");
+            }
+            else
+            {
+                _recorderDic.Add(recorderName, new Recorder<IRecorderData>(recorderName, data));
+            }
+        }
+
+        public void Write(string recorderName)
+        {
+            if (Verify(recorderName))
+            {
+                _recorderDic[recorderName].Write();
+            }
         }
         
-        private static string GenData<T>(ref T dataList) where T : struct
+        public void Start(string recordName){}
+        
+        public void Stop(string recordName)
         {
-            var dataBuilder = new StringBuilder();
-            foreach (var data in (IEnumerable)dataList)
+            if (Verify(recordName))
             {
-                dataBuilder.Append(data);
-                dataBuilder.Append(",");
+                _recorderDic[recordName].Stop();
             }
+        }
 
-            return dataBuilder.ToString();
+        public void Pause(string recordName)
+        {
         }
         
-        public void AddRecorder(string recorder, string monkeyName, IEnumerable<string> titleName)
-        {
-            if (!_recorderDic.ContainsKey(recorder))
-            {
-                _recorderDic.Add(recorder, new StreamWriter(GenFile(recorder, monkeyName)));
-                var titleBuilder = new StringBuilder();
-                foreach (var item in titleName)
-                {
-                    titleBuilder.Append(item);
-                    titleBuilder.Append(",");
-                }
-                _recorderDic[recorder].WriteLine(titleBuilder.ToString());
-            }
-        }
+        public void Continue(string recordName){}
+        
+        public void Destroy(string recordName){}
+        
 
-        public void Write<T>(string recorder, ref T dataList) where T : struct
+        private bool Verify(string recorderName)
         {
-            if (_recorderDic.TryGetValue(recorder, out var value))
-            {
-                value.WriteLine(GenData(ref dataList));
-            }
-        }
-
-        public void Close(string recorder)
-        {
-            if (_recorderDic.TryGetValue(recorder, out var value))
-            {
-               value.Close();
-            }
-        }
-
-        public void Clear()
-        {
-            foreach (var item in _recorderDic)
-            {
-               Close(item.Key); 
-            }
+            if (_recorderDic.ContainsKey(recorderName)) return true;
             
-            _recorderDic.Clear();
+            Debug.Log($"Recorder {recorderName} does not exist");
+            return false;
         }
     }
 
-    internal class Recorder<T> where T : struct
+    internal class Recorder<T> where T : IRecorderData
     {
-        private FieldInfo[] _members;
-        private StreamWriter _writer;
+        private readonly T _data;
         
-        private T _data;
+        private readonly FieldInfo[] _fieldInfos;
+        private readonly StreamWriter _writer;
         
-        internal void SetRecorder(ref T data, string recorder)
+        internal Recorder(string recorder, T data)
         {
             _data = data;
-            _members = data.GetType().GetFields();
+            _fieldInfos = data.GetType().GetFields();
             
+            // Create file
             _writer = new StreamWriter(GenFile(recorder));
 
+            // Generate and write header
             var builder = new StringBuilder();
-            foreach (var variable in _members)
+            foreach (var variable in _fieldInfos)
             {
-                builder.Append(variable.Name);
-                builder.Append(",");
+                Debug.Log($"{variable.FieldType}");
+                if (variable.FieldType == typeof(Vector3))
+                {
+                    var name = variable.Name;
+                    builder.Append($"{name}.X, {name}.Y, {name}.Z,");
+                }
+                else if(variable.FieldType == typeof(Vector2))
+                {
+                    var name = variable.Name;
+                    builder.Append($"{name}.X, {name}.Y,");
+                }
+                else
+                {
+                    builder.Append(variable.Name);
+                    builder.Append(",");
+                }
             }
             
             _writer.WriteLine(builder.ToString());
@@ -127,16 +105,44 @@ namespace PsychoUnity.Manager
         {
             var builder = new StringBuilder();
 
-            foreach (var variable in _members)
+            foreach (var variable in _fieldInfos)
             {
-                builder.Append(variable.GetValue(_data));
-                builder.Append(",");
+                if (variable.FieldType == typeof(Vector3))
+                {
+                    builder.Append(GetVector3(variable.GetValue(_data)));
+                }
+                else if (variable.FieldType == typeof(Vector2))
+                {
+                    builder.Append(GetVector2(variable.GetValue(_data)));
+                }
+                else
+                {
+                    builder.Append(variable.GetValue(_data));
+                    builder.Append(",");
+                }
             }
             
             _writer.WriteLine(builder.ToString());
         }
+
+        private static string GetVector3(object data)
+        {
+            var vector = (Vector3)data;
+            return $"{vector.x}, {vector.y}, {vector.z},";
+        }
+        
+        private static string GetVector2(object data)
+        {
+            var vector = (Vector2)data;
+            return $"{vector.x}, {vector.y},";
+        }
+        
         internal void Start(){}
-        internal void Stop(){}
+
+        internal void Stop()
+        {
+            _writer.Close();
+        }
         internal void Pause(){}
         internal void Continue(){}
         internal void Destroy(){}
@@ -167,9 +173,15 @@ namespace PsychoUnity.Manager
                 {
                     Debug.Log(ex.Message);
                 }
-            };
+            }
 
             return path;
         }
+        
+    }
+    
+    public interface IRecorderData
+    {
+        
     }
 }
