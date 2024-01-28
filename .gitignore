@@ -12,3 +12,4 @@ Assets/Data/
 *.sln
 
 ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
+Assets/Data.meta
