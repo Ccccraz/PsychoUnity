@@ -3,6 +3,7 @@ Logs/
 UserSettings/
 obj/
 Temp/
+Assets/Data/
 
 .idea/
 .vs/
