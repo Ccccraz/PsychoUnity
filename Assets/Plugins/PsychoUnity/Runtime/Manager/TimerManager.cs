@@ -145,10 +145,17 @@ namespace PsychoUnity.Manager
         private int _duration;
         private int _delay;
         private int _times;
+        private int _count;
         private UnityAction _action;
 
         private Task _taskHandler;
         private CancellationTokenSource _cts;
+
+        private long _startTime;
+        private long _pauseTime;
+        private long _remainTime;
+        private long _remainDelayTime;
+        private bool _hasDelay;
 
         public override void SetTimer(int duration, int delay, int times, UnityAction action)
         {
@@ -156,11 +163,15 @@ namespace PsychoUnity.Manager
             _delay = delay;
             _times = times;
             _action = action;
+            _remainTime = _duration;
+            _remainDelayTime = delay;
         }
 
         public override void Start()
         {
-            _taskHandler = Timing();
+            _cts = new CancellationTokenSource();
+            _count = 0;
+            _taskHandler = Timing(_cts.Token);
         }
 
         public override void AddTask(UnityAction action)
@@ -170,46 +181,75 @@ namespace PsychoUnity.Manager
 
         public override void Stop()
         {
+            _cts.Cancel();
             _taskHandler.Dispose();
         }
 
-        /// <summary>
-        /// This method is not yet complete and needs to be implemented further
-        /// </summary>
         public override void Pause()
         {
-            // TODO To complete the pause and restart methods 
-            _taskHandler.Dispose();
+            _cts.Cancel();
+
+            _pauseTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+            
+            if (_delay > 0 && !_hasDelay)
+            {
+                _remainDelayTime = _delay - (_pauseTime - _startTime);
+            }
+            else
+            {
+                _remainDelayTime = 0;
+            }
+            
+            _remainTime = _duration - ( _pauseTime - _startTime);
+            Debug.Log($"{_remainTime}, {_pauseTime}, {_startTime}");
         }
 
-
-        /// <summary>
-        /// This method is not yet complete and needs to be implemented further
-        /// </summary>
         public override void Continue()
         {
-            // TODO To complete the pause and restart methods 
-            _taskHandler = Timing();
+            if (_count >= _times)
+            {
+                Debug.Log("The timer is over.");
+            }
+            else
+            {
+                _cts = new CancellationTokenSource();
+                _taskHandler = Timing(_cts.Token);
+            }
         }
 
         public override void Destroy(){
+            _cts.Cancel();
             _taskHandler.Dispose();
         }
         
-        private async Task Timing()
+        private async Task Timing(CancellationToken cancellationToken)
         {
-            if (_delay > 0)
+            _hasDelay = false;
+            if (_remainDelayTime > 0)
             {
-                await Task.Delay(_delay);
+                _startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+                await Task.Delay((int)_remainDelayTime, cancellationToken);
+                _hasDelay = true;
             }
 
-            var count = 0;
-            while (count < _times)
+            while (_count < _times)
             {
-                await Task.Delay(_duration);
+                _startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+                try
+                {
+                    await Task.Delay((int)_remainTime, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    if (exception is TaskCanceledException)
+                    {
+                        break;
+                    }
+                }
+                
                 _action.Invoke();
-
-                count++;
+                _count++;
+                _remainTime = _duration;
             }
         }
     }
