@@ -185,6 +185,8 @@ namespace PsychoUnity.Manager
             _taskHandler.Dispose();
         }
 
+        // TODO Need comment
+        // XXX It needs to be structured and further verified
         public override void Pause()
         {
             _cts.Cancel();
