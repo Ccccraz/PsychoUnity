@@ -1,8 +1,7 @@
-using System;
 using PsychoUnity.Manager;
 using UnityEngine;
 
-namespace Samples.Timer
+namespace PsychoUnity.Samples.Timer
 {
     public class Timer : MonoBehaviour
     {
