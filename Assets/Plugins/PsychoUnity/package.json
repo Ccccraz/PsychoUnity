@@ -2,7 +2,7 @@
     "name": "com.ccccraz.psychounity",
     "displayName": "PsychoUnity",
     "author": { "name": "Ccccraz" },
-    "version": "0.1.0",
+    "version": "0.1.1",
     "unity": "2022.3",
     "description": "A Unity development framework for behavioral experiment design.",
     "keywords": [ "neuroscience" ],
