@@ -32,9 +32,17 @@ namespace PsychoUnity.Manager
                 _recorderDic[recorderName].Write();
             }
         }
+
+        // TODO Auto recorder
+        public void Start(string recordName)
+        {
+            if (Verify(recordName))
+            {
+                _recorderDic[recordName].Start();
+            }
+        }
         
-        public void Start(string recordName){}
-        
+        // TODO Auto recorder
         public void Stop(string recordName)
         {
             if (Verify(recordName))
@@ -43,15 +51,42 @@ namespace PsychoUnity.Manager
             }
         }
 
+        // TODO Auto recorder
         public void Pause(string recordName)
         {
+            if (Verify(recordName))
+            {
+                _recorderDic[recordName].Pause();
+            }
+        }
+
+        // TODO Auto recorder
+        public void Continue(string recordName)
+        {
+            if (Verify(recordName))
+            {
+                _recorderDic[recordName].Continue();
+            }
+        }
+
+        // TODO Auto recorder
+        public void Destroy(string recordName)
+        {
+            if (Verify(recordName))
+            {
+                _recorderDic[recordName].Destroy();
+            }
+        }
+
+        ~RecordManager()
+        {
+            foreach (var variable in _recorderDic)
+            {
+                variable.Value.Destroy();
+            }
         }
         
-        public void Continue(string recordName){}
-        
-        public void Destroy(string recordName){}
-        
-
+        // TODO Use exception catching instead of Debug.Log()
         private bool Verify(string recorderName)
         {
             if (_recorderDic.ContainsKey(recorderName)) return true;
@@ -80,7 +115,6 @@ namespace PsychoUnity.Manager
             var builder = new StringBuilder();
             foreach (var variable in _fieldInfos)
             {
-                Debug.Log($"{variable.FieldType}");
                 if (variable.FieldType == typeof(Vector3))
                 {
                     var name = variable.Name;
@@ -124,28 +158,26 @@ namespace PsychoUnity.Manager
             
             _writer.WriteLine(builder.ToString());
         }
-
-        private static string GetVector3(object data)
-        {
-            var vector = (Vector3)data;
-            return $"{vector.x}, {vector.y}, {vector.z},";
-        }
         
-        private static string GetVector2(object data)
-        {
-            var vector = (Vector2)data;
-            return $"{vector.x}, {vector.y},";
-        }
-        
+        // TODO Auto recorder
         internal void Start(){}
 
+        // TODO Auto recorder
         internal void Stop()
         {
             _writer.Close();
         }
+        
+        // TODO Auto recorder
         internal void Pause(){}
+        
+        // TODO Auto recorder
         internal void Continue(){}
-        internal void Destroy(){}
+
+        internal void Destroy()
+        {
+            _writer.Close();
+        }
         
         private static string GenFile(string recorder, [CanBeNull] string custom = null, string prefix = "Assets/Data/")
         {
@@ -176,6 +208,18 @@ namespace PsychoUnity.Manager
             }
 
             return path;
+        }
+        
+        private static string GetVector3(object data)
+        {
+            var vector = (Vector3)data;
+            return $"{vector.x}, {vector.y}, {vector.z},";
+        }
+        
+        private static string GetVector2(object data)
+        {
+            var vector = (Vector2)data;
+            return $"{vector.x}, {vector.y},";
         }
         
     }
