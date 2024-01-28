@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Plugins/PsychoUnity/Samples/Record/Trial.unity
+    path: Assets/Plugins/PsychoUnity/Samples/Recorder/Trial.unity
     guid: 220a427b699d1c043986d9a623b8b252
   - enabled: 1
     path: Assets/Plugins/PsychoUnity/Samples/HighResolutionTimer/SubScene.unity
