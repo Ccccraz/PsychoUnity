@@ -17,8 +17,10 @@ namespace PsychoUnity.Samples.Recorder
             
             // Create your Recorder
             // Name your Recorder and pass in the data you need to record
-            // You can customize where the Data is stored. The default is Assets/Data/
             RecordManager.Instance.Create("001", _data);
+            
+            // You can customize where the Data is stored. The default is Assets/Data/
+            RecordManager.Instance.Create("002", _data, "Example", "D:/Example");
         }
 
         private void Update()
@@ -34,6 +36,7 @@ namespace PsychoUnity.Samples.Recorder
             // In this example, the manual mode Recorder is shown,
             // and you need to call the Write() method whenever you need to record
             RecordManager.Instance.Write("001");
+            RecordManager.Instance.Write("002");
         }
 
         private void OnDestroy()
