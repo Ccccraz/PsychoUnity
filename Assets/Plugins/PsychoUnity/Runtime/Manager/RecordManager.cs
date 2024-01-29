@@ -13,7 +13,7 @@ namespace PsychoUnity.Manager
     {
         private readonly Dictionary<string, Recorder<IRecorderData>> _recorderDic = new();
 
-        public void Create<T>(string recorderName, T data) where T : IRecorderData
+        public void Create<T>(string recorderName, T data, [CanBeNull] string custom = null, string prefix = "Assets/Data") where T : IRecorderData
         {
             if (_recorderDic.ContainsKey(recorderName))
             {
@@ -21,7 +21,7 @@ namespace PsychoUnity.Manager
             }
             else
             {
-                _recorderDic.Add(recorderName, new Recorder<IRecorderData>(recorderName, data));
+                _recorderDic.Add(recorderName, new Recorder<IRecorderData>(recorderName, data, custom, prefix));
             }
         }
 
@@ -103,13 +103,13 @@ namespace PsychoUnity.Manager
         private readonly FieldInfo[] _fieldInfos;
         private readonly StreamWriter _writer;
         
-        internal Recorder(string recorder, T data)
+        internal Recorder(string recorder, T data, [CanBeNull] string custom, string prefix)
         {
             _data = data;
             _fieldInfos = data.GetType().GetFields();
             
             // Create file
-            _writer = new StreamWriter(GenFile(recorder));
+            _writer = new StreamWriter(GenFile(recorder, custom, prefix));
 
             // Generate and write header
             var builder = new StringBuilder();
@@ -179,7 +179,7 @@ namespace PsychoUnity.Manager
             _writer.Close();
         }
         
-        private static string GenFile(string recorder, [CanBeNull] string custom = null, string prefix = "Assets/Data/")
+        private static string GenFile(string recorder, [CanBeNull] string custom, string prefix)
         {
             var path = $"{prefix}/{DateTime.Now:yyyyMMdd}/{DateTime.Now:HHmmss}_{recorder}_{custom}.csv";
 
