@@ -142,13 +142,28 @@ namespace PsychoUnity.Manager
 
     public class TimerNormal : TimerBase
     {
+        // Timer basic fields
         private int _duration;
         private int _delay;
         private int _times;
         private UnityAction _action;
+        
+        // Timer basic status
+        private bool _isTiming;
+        private bool _isPause;
 
+        // Pause method related fields
         private Task _taskHandler;
         private CancellationTokenSource _cts;
+
+        private long _startTime; // Delay or timing start time
+        private long _pauseTime; // Pause time
+        
+        private long _remainTime; // Remaining delay after pause is triggered during delay
+        private long _remainDelayTime; // Remaining delay after pause is triggered during timing
+        
+        private bool _hasDelay; // If delay is required, record the delay status
+        private int _count; // Records the current timing times
 
         public override void SetTimer(int duration, int delay, int times, UnityAction action)
         {
@@ -160,7 +175,16 @@ namespace PsychoUnity.Manager
 
         public override void Start()
         {
-            _taskHandler = Timing();
+            if (_isTiming) return;
+            
+            _cts = new CancellationTokenSource();
+            
+            _remainTime = _duration;
+            _remainDelayTime = _delay;
+            _count = 0;
+            
+            _taskHandler = Timing(_cts.Token);
+            _isTiming = true;
         }
 
         public override void AddTask(UnityAction action)
@@ -170,47 +194,100 @@ namespace PsychoUnity.Manager
 
         public override void Stop()
         {
-            _taskHandler.Dispose();
+            Destroy();
         }
 
-        /// <summary>
-        /// This method is not yet complete and needs to be implemented further
-        /// </summary>
         public override void Pause()
         {
-            // TODO To complete the pause and restart methods 
-            _taskHandler.Dispose();
+            if (!_isTiming) return; // Check whether is still timing
+            
+            if (_isPause) return; // Check whether is has been pause
+            
+            _cts.Cancel();
+            _isPause = true;
+
+            // Records the status at pause
+            _pauseTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+            
+            if (_delay > 0 && !_hasDelay)
+            {
+                _remainDelayTime -= (_pauseTime - _startTime);
+            }
+            else
+            {
+                _remainDelayTime = 0;
+                _remainTime -= ( _pauseTime - _startTime);
+            }
+            
+            Debug.Log($"{_remainTime}, {_remainDelayTime}, {_pauseTime}, {_startTime}");
         }
 
-
-        /// <summary>
-        /// This method is not yet complete and needs to be implemented further
-        /// </summary>
         public override void Continue()
         {
-            // TODO To complete the pause and restart methods 
-            _taskHandler = Timing();
+            if (!_isTiming) return;
+
+            if (!_isPause) return;
+            
+            _cts = new CancellationTokenSource();
+            _taskHandler = Timing(_cts.Token);
+            _isPause = false;
+
         }
 
         public override void Destroy(){
+            _cts.Cancel();
             _taskHandler.Dispose();
         }
         
-        private async Task Timing()
+        private async Task Timing(CancellationToken cancellationToken)
         {
-            if (_delay > 0)
+            if (_remainDelayTime > 0)
             {
-                await Task.Delay(_delay);
+                _startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+                
+                // Detecting pause signal
+                try
+                {
+                    await Task.Delay((int)_remainDelayTime, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    if (exception is TaskCanceledException)
+                    {
+                        Debug.Log($"Delaying start time: {_startTime}, pause time: {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
+                        return;
+                    }
+                }
+                
+                _hasDelay = true;
             }
 
-            var count = 0;
-            while (count < _times)
+            // Timing loop, if times == -1 then infinite loop
+            while (_count < _times || _times == -1)
             {
-                await Task.Delay(_duration);
+                _startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+                
+                // Detecting pause signal
+                try
+                {
+                    await Task.Delay((int)_remainTime, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    if (exception is TaskCanceledException)
+                    {
+                        Debug.Log($"Timing start time: {_startTime}, pause time: {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
+                        return;
+                    }
+                }
+                
                 _action.Invoke();
-
-                count++;
+                _count++;
+                _remainTime = _duration;
             }
+
+            _isTiming = false;
+            _hasDelay = false;
         }
     }
     
