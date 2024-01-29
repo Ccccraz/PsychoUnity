@@ -171,15 +171,20 @@ namespace PsychoUnity.Manager
             _delay = delay;
             _times = times;
             _action = action;
-            _remainTime = _duration;
-            _remainDelayTime = delay;
         }
 
         public override void Start()
         {
+            if (_isTiming) return;
+            
             _cts = new CancellationTokenSource();
+            
+            _remainTime = _duration;
+            _remainDelayTime = _delay;
             _count = 0;
+            
             _taskHandler = Timing(_cts.Token);
+            _isTiming = true;
         }
 
         public override void AddTask(UnityAction action)
@@ -189,42 +194,44 @@ namespace PsychoUnity.Manager
 
         public override void Stop()
         {
-            _cts.Cancel();
-            _taskHandler.Dispose();
+            Destroy();
         }
 
-        // TODO Need comment
-        // XXX It needs to be structured and further verified
         public override void Pause()
         {
+            if (!_isTiming) return; // Check whether is still timing
+            
+            if (_isPause) return; // Check whether is has been pause
+            
             _cts.Cancel();
+            _isPause = true;
 
+            // Records the status at pause
             _pauseTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
             
             if (_delay > 0 && !_hasDelay)
             {
-                _remainDelayTime = _delay - (_pauseTime - _startTime);
+                _remainDelayTime -= (_pauseTime - _startTime);
             }
             else
             {
                 _remainDelayTime = 0;
+                _remainTime -= ( _pauseTime - _startTime);
             }
             
-            _remainTime = _duration - ( _pauseTime - _startTime);
-            Debug.Log($"{_remainTime}, {_pauseTime}, {_startTime}");
+            Debug.Log($"{_remainTime}, {_remainDelayTime}, {_pauseTime}, {_startTime}");
         }
 
         public override void Continue()
         {
-            if (_count >= _times)
-            {
-                Debug.Log("The timer is over.");
-            }
-            else
-            {
-                _cts = new CancellationTokenSource();
-                _taskHandler = Timing(_cts.Token);
-            }
+            if (!_isTiming) return;
+
+            if (!_isPause) return;
+            
+            _cts = new CancellationTokenSource();
+            _taskHandler = Timing(_cts.Token);
+            _isPause = false;
+
         }
 
         public override void Destroy(){
@@ -234,17 +241,33 @@ namespace PsychoUnity.Manager
         
         private async Task Timing(CancellationToken cancellationToken)
         {
-            _hasDelay = false;
             if (_remainDelayTime > 0)
             {
                 _startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                await Task.Delay((int)_remainDelayTime, cancellationToken);
+                
+                // Detecting pause signal
+                try
+                {
+                    await Task.Delay((int)_remainDelayTime, cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    if (exception is TaskCanceledException)
+                    {
+                        Debug.Log($"Delaying start time: {_startTime}, pause time: {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
+                        return;
+                    }
+                }
+                
                 _hasDelay = true;
             }
 
-            while (_count < _times)
+            // Timing loop, if times == -1 then infinite loop
+            while (_count < _times || _times == -1)
             {
                 _startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
+                
+                // Detecting pause signal
                 try
                 {
                     await Task.Delay((int)_remainTime, cancellationToken);
@@ -253,7 +276,8 @@ namespace PsychoUnity.Manager
                 {
                     if (exception is TaskCanceledException)
                     {
-                        break;
+                        Debug.Log($"Timing start time: {_startTime}, pause time: {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
+                        return;
                     }
                 }
                 
@@ -261,6 +285,9 @@ namespace PsychoUnity.Manager
                 _count++;
                 _remainTime = _duration;
             }
+
+            _isTiming = false;
+            _hasDelay = false;
         }
     }
     
