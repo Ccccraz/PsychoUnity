@@ -142,20 +142,28 @@ namespace PsychoUnity.Manager
 
     public class TimerNormal : TimerBase
     {
+        // Timer basic fields
         private int _duration;
         private int _delay;
         private int _times;
-        private int _count;
         private UnityAction _action;
+        
+        // Timer basic status
+        private bool _isTiming;
+        private bool _isPause;
 
+        // Pause method related fields
         private Task _taskHandler;
         private CancellationTokenSource _cts;
 
-        private long _startTime;
-        private long _pauseTime;
-        private long _remainTime;
-        private long _remainDelayTime;
-        private bool _hasDelay;
+        private long _startTime; // Delay or timing start time
+        private long _pauseTime; // Pause time
+        
+        private long _remainTime; // Remaining delay after pause is triggered during delay
+        private long _remainDelayTime; // Remaining delay after pause is triggered during timing
+        
+        private bool _hasDelay; // If delay is required, record the delay status
+        private int _count; // Records the current timing times
 
         public override void SetTimer(int duration, int delay, int times, UnityAction action)
         {
