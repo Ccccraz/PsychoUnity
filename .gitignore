@@ -4,6 +4,7 @@ UserSettings/
 obj/
 Temp/
 Assets/Data/
+bin/
 
 .idea/
 .vs/
@@ -13,3 +14,6 @@ Assets/Data/
 
 ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
 Assets/Data.meta
+
+docs/_site/
+docs/api/
