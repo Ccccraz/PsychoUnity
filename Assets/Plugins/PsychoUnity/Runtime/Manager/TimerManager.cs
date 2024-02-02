@@ -115,6 +115,9 @@ namespace PsychoUnity.Manager
 
         }
 
+        /// <summary>
+        /// Timer type: If a high-precision timer is required, select the HighResolution type
+        /// </summary>
         public enum TimerType
         {
             Normal,
@@ -122,25 +125,25 @@ namespace PsychoUnity.Manager
         }
     }
 
-    public abstract class TimerBase
+    internal abstract class TimerBase
     {
-        public abstract void SetTimer(int duration, int delay, int times, UnityAction action);
+        internal abstract void SetTimer(int duration, int delay, int times, UnityAction action);
 
-        public abstract void Start();
+        internal abstract void Start();
 
-        public abstract void AddTask(UnityAction action);
+        internal abstract void AddTask(UnityAction action);
 
-        public abstract void Pause();
+        internal abstract void Pause();
 
-        public abstract void Continue();
+        internal abstract void Continue();
 
-        public abstract void Stop();
+        internal abstract void Stop();
 
-        public abstract void Destroy();
+        internal abstract void Destroy();
 
     }
 
-    public class TimerNormal : TimerBase
+    internal class TimerNormal : TimerBase
     {
         // Timer basic fields
         private int _duration;
@@ -165,7 +168,7 @@ namespace PsychoUnity.Manager
         private bool _hasDelay; // If delay is required, record the delay status
         private int _count; // Records the current timing times
 
-        public override void SetTimer(int duration, int delay, int times, UnityAction action)
+        internal override void SetTimer(int duration, int delay, int times, UnityAction action)
         {
             _duration = duration;
             _delay = delay;
@@ -173,7 +176,7 @@ namespace PsychoUnity.Manager
             _action = action;
         }
 
-        public override void Start()
+        internal override void Start()
         {
             if (_isTiming) return;
             
@@ -187,17 +190,17 @@ namespace PsychoUnity.Manager
             _isTiming = true;
         }
 
-        public override void AddTask(UnityAction action)
+        internal override void AddTask(UnityAction action)
         {
             _action += action;
         }
 
-        public override void Stop()
+        internal override void Stop()
         {
             Destroy();
         }
 
-        public override void Pause()
+        internal override void Pause()
         {
             if (!_isTiming) return; // Check whether is still timing
             
@@ -222,7 +225,7 @@ namespace PsychoUnity.Manager
             Debug.Log($"{_remainTime}, {_remainDelayTime}, {_pauseTime}, {_startTime}");
         }
 
-        public override void Continue()
+        internal override void Continue()
         {
             if (!_isTiming) return;
 
@@ -234,7 +237,7 @@ namespace PsychoUnity.Manager
 
         }
 
-        public override void Destroy(){
+        internal override void Destroy(){
             _cts.Cancel();
             _taskHandler.Dispose();
         }
@@ -290,8 +293,8 @@ namespace PsychoUnity.Manager
             _hasDelay = false;
         }
     }
-    
-    public class TimerHighResolution : TimerBase
+
+    internal class TimerHighResolution : TimerBase
     {
         private long _duration; // 
         private int _delay;
@@ -307,8 +310,8 @@ namespace PsychoUnity.Manager
         private long _endPoint;
 
         private readonly IntPtr _core;
-        
-        public TimerHighResolution(int core)
+
+        internal TimerHighResolution(int core)
         {
             _timingThread = new Thread(Timing)
             {
@@ -319,7 +322,7 @@ namespace PsychoUnity.Manager
             _timingThread.Start();
         }
 
-        public override void SetTimer(int duration, int delay, int times, UnityAction action)
+        internal override void SetTimer(int duration, int delay, int times, UnityAction action)
         {
             QueryPerformanceFrequency(out var frequency);
             _duration = frequency / 1000 * duration;
@@ -327,35 +330,35 @@ namespace PsychoUnity.Manager
             _times = times;
             _action = action;
         }
-        
-        public override void AddTask(UnityAction action)
+
+        internal override void AddTask(UnityAction action)
         {
             _action += action;
         }
 
-        public override void Start()
+        internal override void Start()
         {
             _startTiming = true;
         }
 
         //TODO
-        public override void Pause()
+        internal override void Pause()
         {
             _pauseTiming = true;
         }
 
         //TODO
-        public override void Continue()
+        internal override void Continue()
         {
             _pauseTiming = false;
         }
 
-        public override void Stop()
+        internal override void Stop()
         {
             _startTiming = false;
         }
 
-        public override void Destroy()
+        internal override void Destroy()
         {
             _startTiming = false;
             _keepThread = false;
