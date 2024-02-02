@@ -7,14 +7,14 @@ namespace PsychoUnity.Manager
     /// <summary>
     /// 提供对参数传递的封装
     /// </summary>
-    public interface IEventInfo
+    internal interface IEventInfo
     {
     }
 
     /// <summary>
     /// 不进行参数传递的事件
     /// </summary>
-    public class EventInfo : IEventInfo
+    internal class EventInfo : IEventInfo
     {
         public UnityAction Action;
     }
@@ -23,7 +23,7 @@ namespace PsychoUnity.Manager
     /// 传递一个参数的事件
     /// </summary>
     /// <typeparam name="T"> 被传递参数的类型 </typeparam>
-    public class EventInfo<T> : IEventInfo
+    internal class EventInfo<T> : IEventInfo
     {
         public UnityAction<T> Action;
     }
