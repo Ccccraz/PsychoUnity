@@ -33,6 +33,11 @@
         ]
       }
     ],
+    "sitemap": {
+      "baseUrl": "https://psychounity.org",
+      "priority": 1.0,
+      "changefreq": "daily"
+    },
     "output": "_site",
     "template": [
       "default",
