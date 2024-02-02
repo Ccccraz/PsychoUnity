@@ -1,7 +1,22 @@
-# PsychoUnity
- [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Ccccraz/PsychoUnity/graphs/commit-activity) [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
+<div align="center">
 
-A Unity development framework for behavioral experiment design
+  <a href="">
+    <img width="160" heigth="160" src="docs/images/PsychoUnity.svg">
+  </a>
+
+  <h1>PsychoUnity</h1>
+
+  <div>
+    <a href="https://github.com/Ccccraz/PsychoUnity/graphs/commit-activity">
+      <img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="github-ci" />
+    </a>
+    <a href="">
+      <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" />
+    </a>
+  </div>
+
+  <b> A Unity-based development framework for designing behavioral experiments </b><br/>
+</div>
 
 ## Dependences
 
@@ -22,8 +37,6 @@ You can install PsychoUnity via git URL. You just need to add `https://github.co
 - Timer Manager
 - Events Manager
 - Network Communications Manager
-
-## [Tutorial](./doc/turorial.md)
 
 ## Developers
 
