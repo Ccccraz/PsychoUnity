@@ -1,6 +1,6 @@
 <div align="center">
 
-  <a href="">
+  <a href="https://psychounity.org">
     <img width="160" heigth="160" src="https://i.imgur.com/NROlL92.png">
   </a>
 
@@ -16,7 +16,12 @@
   </div>
 
   <b> A Unity-based development framework for designing behavioral experiments </b><br/>
+
+  <i> More information can be found at [Documentation](https://psychounity.org) </i><br/>
+
 </div>
+
+
 
 ## Dependences
 
