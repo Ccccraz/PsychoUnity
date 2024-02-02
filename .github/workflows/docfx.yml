@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - '.github/workflows/docfx.yml'
       - 'Assets/Plugins/PsychoUnity/Runtime/**/*.cs'
       - 'docs/**'
 
