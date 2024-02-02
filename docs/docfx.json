@@ -41,6 +41,8 @@
     "globalMetadata": {
       "_appName": "PsychoUnity",
       "_appTitle": "PsychoUnity",
+      "_appLogoPath": "images/PsychoUnityLogo.svg",
+      "_appFaviconPath": "images/PsychoUnityLogoFavicon.svg",
       "_enableSearch": true,
       "pdf": true
     }
