@@ -224,6 +224,9 @@ namespace PsychoUnity.Manager
         
     }
     
+    /// <summary>
+    /// This interface must be inherited when defining the data structure that needs to be recorded
+    /// </summary>
     public interface IRecorderData
     {
         
