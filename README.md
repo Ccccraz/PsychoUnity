@@ -1,7 +1,7 @@
 <div align="center">
 
   <a href="">
-    <img width="160" heigth="160" src="docs/images/PsychoUnity.svg">
+    <img width="160" heigth="160" src="https://i.imgur.com/NROlL92.png">
   </a>
 
   <h1>PsychoUnity</h1>
