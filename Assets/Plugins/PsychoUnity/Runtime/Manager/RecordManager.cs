@@ -9,11 +9,24 @@ using UnityEngine;
 
 namespace PsychoUnity.Manager
 {
+    /// <summary>
+    /// Provide standardized recording methods
+    /// Save data to csv file, support record int, float and other basic data types,
+    /// support record Unity.Vector3, Unity.Vector2. Allow to create multiple instances of recorder.
+    /// </summary>
     public class RecordManager : Singleton<RecordManager>
     {
         private readonly Dictionary<string, Recorder<IRecorderData>> _recorderDic = new();
 
-        public void Create<T>(string recorderName, T data, [CanBeNull] string custom = null, string prefix = "Assets/Data") where T : IRecorderData
+        /// <summary>
+        /// Creating a Recorder
+        /// </summary>
+        /// <param name="recorderName"> recorder name </param>
+        /// <param name="data"> Data that needs to be recorded </param>
+        /// <param name="custom"> Customized identifiers that will be displayed at the end of the file name,
+        /// default is empty </param>
+        /// <param name="prefix"> Where the data is stored, by default: Assets/Data </param>
+        public void Create(string recorderName, IRecorderData data, [CanBeNull] string custom = null, string prefix = "Assets/Data")
         {
             if (_recorderDic.ContainsKey(recorderName))
             {
@@ -25,6 +38,10 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Manually triggered recording, Write the current state of the data to file
+        /// </summary>
+        /// <param name="recorderName"> target recorder name </param>
         public void Write(string recorderName)
         {
             if (Verify(recorderName))
@@ -33,7 +50,10 @@ namespace PsychoUnity.Manager
             }
         }
 
-        // TODO Auto recorder
+        /// <summary>
+        /// TODO Auto recorder
+        /// </summary>
+        /// <param name="recordName"> target recorder name </param>
         public void Start(string recordName)
         {
             if (Verify(recordName))
@@ -42,7 +62,10 @@ namespace PsychoUnity.Manager
             }
         }
         
-        // TODO Auto recorder
+        /// <summary>
+        /// TODO Auto recorder
+        /// </summary>
+        /// <param name="recordName"> target recorder name </param>
         public void Stop(string recordName)
         {
             if (Verify(recordName))
@@ -51,7 +74,10 @@ namespace PsychoUnity.Manager
             }
         }
 
-        // TODO Auto recorder
+        /// <summary>
+        /// TODO Auto recorder
+        /// </summary>
+        /// <param name="recordName"> target recorder name </param>
         public void Pause(string recordName)
         {
             if (Verify(recordName))
@@ -60,7 +86,10 @@ namespace PsychoUnity.Manager
             }
         }
 
-        // TODO Auto recorder
+        /// <summary>
+        /// TODO Auto recorder
+        /// </summary>
+        /// <param name="recordName"> target recorder name </param>
         public void Continue(string recordName)
         {
             if (Verify(recordName))
@@ -70,6 +99,10 @@ namespace PsychoUnity.Manager
         }
 
         // TODO Auto recorder
+        /// <summary>
+        /// Destroy target recorder
+        /// </summary>
+        /// <param name="recordName"> target recorder name </param>
         public void Destroy(string recordName)
         {
             if (Verify(recordName))
@@ -78,6 +111,9 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Destroy all recorders
+        /// </summary>
         ~RecordManager()
         {
             foreach (var variable in _recorderDic)

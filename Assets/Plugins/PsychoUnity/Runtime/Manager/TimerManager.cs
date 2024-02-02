@@ -9,6 +9,10 @@ using ThreadPriority = System.Threading.ThreadPriority;
 
 namespace PsychoUnity.Manager
 {
+    /// <summary>
+    /// Provides two timers with different resolutions. One of the high-resolution timers will occupy a CPU core,
+    /// which consumes more performance. Allows creation of multiple timers.
+    /// </summary>
     public class TimerManager : Singleton<TimerManager>
     {
         private readonly Dictionary<string, TimerBase> _timersDic = new Dictionary<string, TimerBase>();
@@ -39,6 +43,13 @@ namespace PsychoUnity.Manager
             return timestamp;
         }
 
+        /// <summary>
+        /// Creating a Timer
+        /// </summary>
+        /// <param name="name"> Timer name </param>
+        /// <param name="type"> Type of timer </param>
+        /// <param name="core"> If you need to create a high resolution timer,
+        /// you need to specify the cpu core on which the timer will run, the default is 4. </param>
         public void Create(string name, TimerType type, int core = 4)
         {
             if (!_timersDic.ContainsKey(name))
@@ -51,6 +62,14 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Setting up the timer
+        /// </summary>
+        /// <param name="name"> target timer name </param>
+        /// <param name="duration"> time duration </param>
+        /// <param name="delay"> The amount of time that needs to be delayed before the first timing starts </param>
+        /// <param name="times"> Number of times the timer needs to loop. When the value is -1, the timer will loop indefinitely </param>
+        /// <param name="action"> Functions to be executed after the end of timing </param>
         public void SetSchedule(string name, int duration, int delay = 0, int times = 1, UnityAction action = null)
         {
             if (VerifyTimer(name))
@@ -59,6 +78,11 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Adding tasks to the timer
+        /// </summary>
+        /// <param name="name"> target recorder name </param>
+        /// <param name="action"> Tasks to be added </param>
         public void AddTask(string name, UnityAction action)
         {
             if (VerifyTimer(name))
@@ -67,6 +91,10 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Start the timer
+        /// </summary>
+        /// <param name="name"> target timer name </param>
         public void Start(string name)
         {
             if (VerifyTimer(name))
@@ -75,6 +103,10 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Stop the timer
+        /// </summary>
+        /// <param name="name"> target timer name </param>
         public void Stop(string name)
         {
             if (VerifyTimer(name))
@@ -83,6 +115,10 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Pause the timer
+        /// </summary>
+        /// <param name="name"> target timer name </param>
         public void Pause(string name)
         {
             if (VerifyTimer(name))
@@ -91,6 +127,10 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// CContinue the paused timer
+        /// </summary>
+        /// <param name="name"> target timer name </param>
         public void Continue(string name)
         {
             if (VerifyTimer(name))
@@ -99,6 +139,10 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Destroy the timer
+        /// </summary>
+        /// <param name="name"> target timer name </param>
         public void Destroy(string name)
         {
             if (VerifyTimer(name))

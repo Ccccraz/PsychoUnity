@@ -29,7 +29,7 @@ namespace PsychoUnity.Manager
     }
 
     /// <summary>
-    /// 事件中心
+    /// Global Event Manager
     /// </summary>
     public class EventManager : Singleton<EventManager>
     {
@@ -41,10 +41,10 @@ namespace PsychoUnity.Manager
         private readonly Dictionary<string, int> _eventCountDic = new Dictionary<string, int>();
 
         /// <summary>
-        /// 添加对目标事件的订阅
+        /// Adding a subscription to a specific event
         /// </summary>
-        /// <param name="eventName"> 目标事件名 </param>
-        /// <param name="action"> 订阅事件的委托 </param>
+        /// <param name="eventName"> event name </param>
+        /// <param name="action"> Functions to be executed when an event is triggered </param>
         public void AddEventListener(string eventName, UnityAction action)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo eventInfo)
@@ -59,11 +59,11 @@ namespace PsychoUnity.Manager
         }
 
         /// <summary>
-        /// 添加对目标事件的订阅，并传递参数
+        /// Adding a subscription to a specific event and passing parameters to the subscriber.
         /// </summary>
-        /// <param name="eventName"> 目标事件名 </param>
-        /// <param name="action"> 订阅事件的委托 </param>
-        /// <typeparam name="T"> 向委托传递的参数类型 </typeparam>
+        /// <param name="eventName"> event name </param>
+        /// <param name="action"> Functions to be executed when an event is triggered </param>
+        /// <typeparam name="T"> Types of parameters that need to be passed to the subscription function </typeparam>
         public void AddEventListener<T>(string eventName, UnityAction<T> action)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo<T> eventInfo)
@@ -78,10 +78,10 @@ namespace PsychoUnity.Manager
         }
         
         /// <summary>
-        /// 移除对目标事件的订阅
+        /// Remove subscription to target event
         /// </summary>
-        /// <param name="eventName"> 目标事件名 </param>
-        /// <param name="action"> 订阅目标事件的委托 </param>
+        /// <param name="eventName"> event name </param>
+        /// <param name="action"> Functions that need to remove subscriptions to target events </param>
         public void RemoveEventListener(string eventName, UnityAction action)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo eventInfo)
@@ -91,11 +91,11 @@ namespace PsychoUnity.Manager
         }
         
         /// <summary>
-        /// 移除对目标事件的订阅，适用于带有参数传递的事件
+        /// Remove subscription to target event for function with parameter passing
         /// </summary>
-        /// <param name="eventName"> 目标事件名 </param>
-        /// <param name="action"> 订阅目标事件的委托 </param>
-        /// <typeparam name="T"> 需要传递的参数类型 </typeparam>
+        /// <param name="eventName"> event name </param>
+        /// <param name="action"> Functions that need to remove subscriptions to target events </param>
+        /// <typeparam name="T"> Types of parameters that need to be passed to the subscription function </typeparam>
         public void RemoveEventListener<T>(string eventName, UnityAction<T> action)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo<T> eventInfo)
@@ -105,9 +105,9 @@ namespace PsychoUnity.Manager
         }
 
         /// <summary>
-        /// 调用所有订阅了目标事件的委托
+        /// Trigger event
         /// </summary>
-        /// <param name="eventName"> 目标事件名 </param>
+        /// <param name="eventName"> event name </param>
         public void EventTrigger(string eventName)
         {
             if (_eventDic.TryGetValue(eventName, out var action) && action is EventInfo eventInfo)
@@ -122,11 +122,11 @@ namespace PsychoUnity.Manager
         }
         
         /// <summary>
-        /// 调用所有订阅了目标事件的委托, 并传递参数
+        /// Trigger the event and pass the parameters
         /// </summary>
-        /// <param name="eventName"> 目标事件名 </param>
-        /// <param name="param"> 需要传递的参数 </param>
-        /// <typeparam name="T"> 需要传递参数的类型 </typeparam>
+        /// <param name="eventName"> event name </param>
+        /// <param name="param"> Parameters passed to subscribers </param>
+        /// <typeparam name="T"> The type of parameter passed to the subscribers </typeparam>
         public void EventTrigger<T>(string eventName, T param)
         {
             if (_eventDic.TryGetValue(eventName, out var value) && value is EventInfo<T> eventInfo)
@@ -140,18 +140,28 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Check if there are subscribers to an event
+        /// </summary>
+        /// <param name="eventName"> event name </param>
+        /// <returns> Returns true if it exists, false otherwise </returns>
         public bool CheckEvent(string eventName)
         {
             return _eventCountDic.ContainsKey(eventName);
         }
 
+        /// <summary>
+        /// Get the number of times the target event was triggered
+        /// </summary>
+        /// <param name="eventName"> event name </param>
+        /// <returns> Number of times the target event was triggered </returns>
         public int GetCount(string eventName)
         {
             return _eventCountDic[eventName];
         }
 
         /// <summary>
-        /// 情况当前注册的所有事件
+        /// Clear all events
         /// </summary>
         public void Clear()
         {

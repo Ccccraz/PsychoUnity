@@ -5,16 +5,30 @@ using UnityEngine;
 
 namespace PsychoUnity.Manager
 {
+    /// <summary>
+    /// Serial Device Manager
+    /// </summary>
+    [Obsolete]
     public class SerialComManager : Singleton<SerialComManager>
     {
         private readonly Dictionary<string, SerialPort> _serialComDic = new Dictionary<string, SerialPort>();
         
+        /// <summary>
+        /// Add and setup a serial device
+        /// </summary>
+        /// <param name="serialComName"> Define a name for the serial device </param>
+        /// <param name="portName"> communication port </param>
+        /// <param name="baudRate"> baud rate </param>
         public void AddSerialCom(string serialComName, string portName, int baudRate)
         {
             AddSerialCom(serialComName);
             SetSerialCom(serialComName, portName, baudRate);
         }
 
+        /// <summary>
+        /// Add a serial device
+        /// </summary>
+        /// <param name="deviceName"> Define a name for the serial device </param>
         public void AddSerialCom(string deviceName)
         {
             if (_serialComDic.ContainsKey(deviceName))
@@ -27,6 +41,12 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Setup a serial device
+        /// </summary>
+        /// <param name="serialComName"> target device name </param>
+        /// <param name="portName"> communication port name </param>
+        /// <param name="baudRate"> baud rate </param>
         public void SetSerialCom(string serialComName, string portName, int baudRate)
         {
             if (!_serialComDic.TryGetValue(serialComName, out var serialPort))
@@ -38,6 +58,10 @@ namespace PsychoUnity.Manager
             serialPort.BaudRate = baudRate;
         }
 
+        /// <summary>
+        /// Open a serial device
+        /// </summary>
+        /// <param name="serialComName"> target device name </param>
         public void Open(string serialComName)
         {
             if (_serialComDic.TryGetValue(serialComName, out var serialPort))
@@ -68,6 +92,12 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Write a message to a serial device
+        /// </summary>
+        /// <param name="serialComName"> target device name </param>
+        /// <param name="msgBuf"> message buffer </param>
+        /// <param name="msgSize"> message size </param>
         public void Write(string serialComName, ref byte[] msgBuf, int msgSize)
         {
             if (CheckSerialPort(serialComName))
@@ -80,11 +110,22 @@ namespace PsychoUnity.Manager
             }
         }
 
+        /// <summary>
+        /// Read message from serial device
+        /// </summary>
+        /// <param name="serialComName"> target device name </param>
+        /// <param name="msgBuf"> message buffer </param>
+        /// <param name="msgSize"> message size </param>
         public void Read(string serialComName, ref byte[] msgBuf, int msgSize)
         {
             _serialComDic[serialComName].Read(msgBuf, 0, msgSize);
         }
 
+        /// <summary>
+        /// Check that the serial device is exists
+        /// </summary>
+        /// <param name="serialComName"> target device name </param>
+        /// <returns> Returns true if it exists, false otherwise </returns>
         public bool CheckSerialPort(string serialComName)
         {
             if (!_serialComDic.TryGetValue(serialComName, out var serialPort))
@@ -102,6 +143,10 @@ namespace PsychoUnity.Manager
             return true;
         }
 
+        /// <summary>
+        /// Close the serial device
+        /// </summary>
+        /// <param name="serialComName"> target device name </param>
         public void Close(string serialComName)
         {
             if (!_serialComDic.TryGetValue(serialComName, out var serialPort)) return;
@@ -111,6 +156,9 @@ namespace PsychoUnity.Manager
             serialPort.Close();
         }
 
+        /// <summary>
+        /// Close all serial device
+        /// </summary>
         public void Clear()
         {
             foreach (var item in _serialComDic)
