@@ -1,13 +1,4 @@
-# Turorial
-
-- [Getting Start](#getting-start)
-- [Components](#components)
-    - [EventManager](#eventmanger)
-
-## Getting Start
-
-## Components
-### EventManger
+# EventManger
 
 ```mermaid
 sequenceDiagram

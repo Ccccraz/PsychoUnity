@@ -1,0 +1,48 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../Assets/Plugins/PsychoUnity/Runtime",
+          "files": [
+            "**/*.cs"
+          ]
+        }
+      ],
+      "dest": "api",
+      "outputFormat": "apiPage",
+      "allowCompilationErrors": true,
+      "memberLayout": "separatePages"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "PsychoUnity",
+      "_appTitle": "PsychoUnity",
+      "_enableSearch": true,
+      "pdf": true
+    }
+  }
+}
