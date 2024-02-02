@@ -39,6 +39,7 @@ for more infomation you can see in [documention](manual/index.md)
 - Timer Manager
 - Events Manager
 - Network Communications Manager
+- Local Devices Manager
 
 ## Developers
 
