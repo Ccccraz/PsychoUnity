@@ -10,9 +10,9 @@
 
   <div>
     <a href="https://github.com/Ccccraz/PsychoUnity/graphs/commit-activity">
-      <img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="github-ci" />
+      <img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
     </a>
-    <a href="">
+    <a href="http://perso.crans.org/besson/LICENSE.html">
       <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" />
     </a>
   </div>
@@ -22,17 +22,17 @@
   <hr />
 </div>
 
+## Introduction
+
+PsychoUnity is a Unity-based development framework that has been created to enable scientists to easily design and implement behavioral experiments using the Unity engine. Utilizing a robust contemporary game engine, the creation of 3D visual stimuli becomes an effortless and intuitive process. Moreover, integrating gravity, collisions, and other prevalent physical phenomena from the real world into your experimental design is effortlessly achievable.
+
 ## Quick Start
 
-You can install PsychoUnity via git URL. You just need to add `https://github.com/Ccccraz/PsychoUnity.git?path=Assets/Plugins/PsychoUnity` to Package Manager.
+PsychoUnity can be installed through the Unity Package Manager using a Git URL. You just need to add `https://github.com/Ccccraz/PsychoUnity.git?path=Assets/Plugins/PsychoUnity` to Package Manager.
 
 ![](https://i.imgur.com/cV3iog6.png)
 
 ![](https://i.imgur.com/CdFeHnW.png)
-
-## Documentaion
-
-for more infomation you can see in [documention](manual/index.md)
 
 ## Components
 
@@ -40,6 +40,10 @@ for more infomation you can see in [documention](manual/index.md)
 - Events Manager
 - Network Communications Manager
 - Local Devices Manager
+
+## Documentaion
+
+for more infomation you can see in [Manual](manual/index.md)
 
 ## Developers
 
