@@ -17,3 +17,7 @@ You can download and install the latest release version from [Github](https://gi
 
 
 ### Starting with an sample
+
+You can find all the samples at the following location:
+
+![](https://i.imgur.com/bTVLVxK.png)
