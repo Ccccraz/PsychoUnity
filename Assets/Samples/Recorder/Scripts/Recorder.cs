@@ -2,7 +2,7 @@ using PsychoUnity.Manager;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace PsychoUnity.Samples.Recorder
+namespace Samples.Recorder.Scripts
 {
     public class Recorder : MonoBehaviour
     {
