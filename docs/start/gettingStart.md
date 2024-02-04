@@ -1,9 +1,8 @@
-# Manual
-## Getting start
+## Installing
 
-### Installing
+<hr />
 
-#### Install via Unity Package Manager (Recommend)
+### Install via Unity Package Manager (Recommend)
 
 PsychoUnity can be installed through the Unity Package Manager using a Git URL. You just need to add `https://github.com/Ccccraz/PsychoUnity.git?path=Assets/Plugins/PsychoUnity` to Package Manager.
 
@@ -11,12 +10,14 @@ PsychoUnity can be installed through the Unity Package Manager using a Git URL. 
 
 ![](https://i.imgur.com/CdFeHnW.png)
 
-#### Manually
+### Manually
 
 You can download and install the latest release version from [Github](https://github.com/Ccccraz/PsychoUnity/releases/tag/latest)
 
 
-### Starting with an sample
+## Starting with an sample
+
+<hr />
 
 You can find all the samples at the following location:
 
