@@ -2,5 +2,7 @@
   href: start/
 - name: Manual
   href: manual/
+- name: ChangeLog
+  href: CHANGELOG.md
 - name: Scripting API
   href: api/
