@@ -11,6 +11,8 @@ bin/
 
 *.csproj
 *.sln
+*.DotSettings
+*.sln.DotSettings.user
 
 ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
 Assets/Data.meta
@@ -18,3 +20,5 @@ Assets/Data.meta
 docs/_site/
 docs/api/
 Assets/Plugins/PsychoUnity/Runtime/Feature/obj.meta
+
+UIElementsSchema/
