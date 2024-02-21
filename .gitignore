@@ -87,3 +87,7 @@ UIElementsSchema/
 
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db*
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers*
+Assets/Unity.VisualScripting.Generated/VisualScripting.Core.meta
+Assets/Unity.VisualScripting.Generated/VisualScripting.Flow.meta
+ProjectSettings/VisualScriptingSettings.asset
+Assets/Unity.VisualScripting.Generated.meta
