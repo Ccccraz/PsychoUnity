@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Plugins/PsychoUnity/Editor/PsychoUnityWizard.uss?fileID=7433441132597879392&amp;guid=c2f221f19883b304dbf39faae9428cb7&amp;type=3#PsychoUnityWizard" />
+    <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" style="align-items: auto; align-self: center; background-image: url(&apos;project://database/Assets/Plugins/PsychoUnity/Asset/Logo/PsychoUnityLogo.png?fileID=2800000&amp;guid=6cad87eeb014b124998744b61fd182a9&amp;type=3#PsychoUnityLogo&apos;); -unity-background-scale-mode: scale-and-crop; min-width: 120px; min-height: 120px; background-color: rgba(56, 56, 56, 0);" />
+</ui:UXML>
