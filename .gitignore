@@ -91,3 +91,14 @@ Assets/Unity.VisualScripting.Generated/VisualScripting.Core.meta
 Assets/Unity.VisualScripting.Generated/VisualScripting.Flow.meta
 ProjectSettings/VisualScriptingSettings.asset
 Assets/Unity.VisualScripting.Generated.meta
+ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
+Assets/Unity.VisualScripting.Generated/VisualScripting.Core/Variables.meta
+Assets/Unity.VisualScripting.Generated/VisualScripting.Core/Variables/Resources.meta
+Assets/Unity.VisualScripting.Generated/VisualScripting.Core/Variables/Resources/SavedVariables.asset
+Assets/Unity.VisualScripting.Generated/VisualScripting.Core/Variables/Resources/SavedVariables.asset.meta
+Assets/Test/Recorder.meta
+Assets/Test/Recorder/Recorder.asset
+Assets/Test/Recorder/Recorder.asset.meta
+Assets/Test/Recorder/Recorder.unity
+Assets/Test/Recorder/Recorder.unity.meta
+Assets/Test.meta
