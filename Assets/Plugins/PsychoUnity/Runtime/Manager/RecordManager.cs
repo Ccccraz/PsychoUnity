@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -16,7 +17,7 @@ namespace PsychoUnity.Manager
     /// </summary>
     public class RecordManager : Singleton<RecordManager>
     {
-        private readonly Dictionary<string, Recorder<IRecorderData>> _recorderDic = new();
+        private readonly Dictionary<string, RecorderBase> _recorderDic = new();
 
         /// <summary>
         /// Creating a Recorder
@@ -35,6 +36,18 @@ namespace PsychoUnity.Manager
             else
             {
                 _recorderDic.Add(recorderName, new Recorder<IRecorderData>(recorderName, data, custom, prefix));
+            }
+        }
+
+        internal void CreateNode(string recorderName, IDictionary data, [CanBeNull] string custom = null, string prefix = "Assets/Data")
+        {
+            if (_recorderDic.ContainsKey(recorderName))
+            {
+                Debug.Log($"Recorder {recorderName} already exist");
+            }
+            else
+            {
+                _recorderDic.Add(recorderName, new RecorderNode<IDictionary>(recorderName, data, custom, prefix));
             }
         }
 
@@ -130,9 +143,20 @@ namespace PsychoUnity.Manager
             Debug.Log($"Recorder {recorderName} does not exist");
             return false;
         }
+        
+    }
+    
+    internal abstract class RecorderBase
+    {
+        internal abstract void Write();
+        internal abstract void Start();
+        internal abstract void Stop();
+        internal abstract void Pause();
+        internal abstract void Continue();
+        internal abstract void Destroy();
     }
 
-    internal class Recorder<T> where T : IRecorderData
+    internal class Recorder<T> : RecorderBase where T : IRecorderData
     {
         private readonly T _data;
         
@@ -145,7 +169,7 @@ namespace PsychoUnity.Manager
             _fieldInfos = data.GetType().GetFields();
             
             // Create file
-            _writer = new StreamWriter(GenFile(recorder, custom, prefix));
+            _writer = new StreamWriter(Utils.GenFile(recorder, custom, prefix));
 
             // Generate and write header
             var builder = new StringBuilder();
@@ -171,7 +195,7 @@ namespace PsychoUnity.Manager
             _writer.WriteLine(builder.ToString());
         }
 
-        internal void Write()
+        internal override void Write()
         {
             var builder = new StringBuilder();
 
@@ -179,11 +203,11 @@ namespace PsychoUnity.Manager
             {
                 if (variable.FieldType == typeof(Vector3))
                 {
-                    builder.Append(GetVector3(variable.GetValue(_data)));
+                    builder.Append(Utils.GetVector3(variable.GetValue(_data)));
                 }
                 else if (variable.FieldType == typeof(Vector2))
                 {
-                    builder.Append(GetVector2(variable.GetValue(_data)));
+                    builder.Append(Utils.GetVector2(variable.GetValue(_data)));
                 }
                 else
                 {
@@ -196,26 +220,120 @@ namespace PsychoUnity.Manager
         }
         
         // TODO Auto recorder
-        internal void Start(){}
+        internal override void Start(){}
 
         // TODO Auto recorder
-        internal void Stop()
+        internal override void Stop()
         {
             _writer.Close();
         }
         
         // TODO Auto recorder
-        internal void Pause(){}
+        internal override void Pause(){}
         
         // TODO Auto recorder
-        internal void Continue(){}
+        internal override void Continue(){}
 
-        internal void Destroy()
+        internal override void Destroy()
         {
             _writer.Close();
         }
         
-        private static string GenFile(string recorder, [CanBeNull] string custom, string prefix)
+        
+    }
+
+    
+    internal class RecorderNode<T> : RecorderBase where T : IDictionary
+    {
+        private readonly T _data;
+        
+        private readonly StreamWriter _writer;
+        
+        public RecorderNode(string recorder, T data, [CanBeNull] string custom, string prefix)
+        {
+            _data = data;
+            
+            // Create file
+            _writer = new StreamWriter(Utils.GenFile(recorder, custom, prefix));
+
+            // Generate and write header
+            var builder = new StringBuilder();
+            
+            foreach (DictionaryEntry variable in data)
+            {
+                if (variable.Value is Vector3)
+                {
+                    var name = variable.Key;
+                    builder.Append($"{name}.X, {name}.Y, {name}.Z,");
+                }
+                else if(variable.Value is Vector2)
+                {
+                    var name = variable.Key;
+                    builder.Append($"{name}.X, {name}.Y,");
+                }
+                else
+                {
+                    builder.Append(variable.Key);
+                    builder.Append(",");
+                }
+            }
+            
+            _writer.WriteLine(builder.ToString());
+        }
+
+        internal override void Write()
+        {
+            var builder = new StringBuilder();
+
+            foreach (DictionaryEntry variable in _data)
+            {
+                if (variable.Value is Vector3)
+                {
+                    builder.Append(Utils.GetVector3(variable.Value));
+                }
+                else if (variable.Value is Vector2)
+                {
+                    builder.Append(Utils.GetVector2(variable.Value));
+                }
+                else
+                {
+                    builder.Append(variable.Value);
+                    builder.Append(",");
+                }
+            }
+            
+            _writer.WriteLine(builder.ToString());
+        }
+
+        internal override void Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Stop()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Pause()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Continue()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Destroy()
+        {
+            _writer.Close();
+        }
+    }
+
+    public static class Utils
+    {
+        internal static string GenFile(string recorder, [CanBeNull] string custom, string prefix)
         {
             var path = $"{prefix}/{DateTime.Now:yyyyMMdd}/{DateTime.Now:HHmmss}_{recorder}_{custom}.csv";
 
@@ -246,18 +364,17 @@ namespace PsychoUnity.Manager
             return path;
         }
         
-        private static string GetVector3(object data)
+        internal static string GetVector3(object data)
         {
             var vector = (Vector3)data;
             return $"{vector.x}, {vector.y}, {vector.z},";
         }
         
-        private static string GetVector2(object data)
+        internal static string GetVector2(object data)
         {
             var vector = (Vector2)data;
             return $"{vector.x}, {vector.y},";
         }
-        
     }
     
     /// <summary>
