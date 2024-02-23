@@ -50,7 +50,7 @@
       "_appLogoPath": "images/PsychoUnityLogo.svg",
       "_appFaviconPath": "images/PsychoUnityLogoFavicon.svg",
       "_enableSearch": true,
-      "pdf": true
+      "pdf": false
     }
   }
 }
