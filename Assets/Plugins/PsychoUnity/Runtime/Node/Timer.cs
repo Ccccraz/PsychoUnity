@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -10,6 +11,11 @@ namespace PsychoUnity.Node
         [DoNotSerialize] public ControlInput InputTrigger;
 
         [DoNotSerialize] public ControlOutput OutputTrigger;
+        
+        [DoNotSerialize]
+        [PortLabelHidden]
+        [NullMeansSelf]
+        public ValueInput Target { get; private set; }
 
         [DoNotSerialize] public ValueInput EventName;
         
@@ -19,8 +25,11 @@ namespace PsychoUnity.Node
         
         [DoNotSerialize] public ValueInput Times;
         
+        
         protected override void Definition()
         {
+            Target = ValueInput<GameObject>(nameof(Target), null).NullMeansSelf();
+            
             EventName = ValueInput<string>("Event", string.Empty);
             Duration = ValueInput<int>("Duration", 0);
             Delay = ValueInput<int>("Delay", 0);
