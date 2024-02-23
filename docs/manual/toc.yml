@@ -1,2 +1,8 @@
+- name: Visual Scripting Manual
+- name: Recorder Node
+  href: recorderNode.md
+- name: Timer Node
+  href: timerNode.md
+- name: Scripting Manual
 - name: Evnet Manager
   href: eventmanager.md
