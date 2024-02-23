@@ -24,7 +24,7 @@ namespace PsychoUnity.Node
             
             Custom = ValueInput("Custom", string.Empty);
             
-            Prefix = ValueInput("Prefix", string.Empty);
+            Prefix = ValueInput("Prefix", "Assets/Data");
 
             ControlInput(" ", flow =>
             {
