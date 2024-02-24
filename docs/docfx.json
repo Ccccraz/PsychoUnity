@@ -12,7 +12,7 @@
       "dest": "api",
       "outputFormat": "apiPage",
       "allowCompilationErrors": true,
-      "memberLayout": "separatePages"
+      "memberLayout": "SamePage"
     }
   ],
   "build": {
