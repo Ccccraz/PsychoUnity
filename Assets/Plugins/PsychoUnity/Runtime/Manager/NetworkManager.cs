@@ -97,3 +97,16 @@ namespace PsychoUnity.Manager
         }
     }
 }
+
+internal abstract class NetworkCom
+{
+    
+}
+
+internal class TcpCom : NetworkCom
+{
+    internal TcpCom(string hostName, int port)
+    {
+        
+    }
+}
