@@ -43,7 +43,7 @@ PsychoUnity can be installed through the Unity Package Manager using a Git URL. 
 
 ## Documentaion
 
-for more infomation you can see in [Manual](manual/index.md)
+for more infomation you can see in [Manual](./manual/recorderNode.md)
 
 ## Developers
 
