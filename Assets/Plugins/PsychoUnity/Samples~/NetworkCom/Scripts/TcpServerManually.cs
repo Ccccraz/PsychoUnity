@@ -11,7 +11,7 @@ namespace Samples.NetworkCom.Scripts
             NetworkComManager.Instance.Create("001", "127.0.0.1", 8888, NetWorkType.TcpServer, WorkMode.Manual);
             var _ = NetworkComManager.Instance.InitAsync("001");
 
-            TimerManager.Instance.Create("T001", TimerManager.TimerType.Normal);
+            TimerManager.Instance.Create("T001", TimerType.Normal);
             TimerManager.Instance.SetSchedule("T001", 200, 0, -1, ReadData);
             TimerManager.Instance.Start("T001");
         }

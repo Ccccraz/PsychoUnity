@@ -7,8 +7,18 @@ using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
 using ThreadPriority = System.Threading.ThreadPriority;
 
+// ReSharper disable once CheckNamespace
 namespace PsychoUnity.Manager
 {
+    /// <summary>
+    /// Timer type: If a high-precision timer is required, select the HighResolution type
+    /// </summary>
+    public enum TimerType
+    {
+        Normal,
+        HighResolution
+    }
+
     /// <summary>
     /// Provides two timers with different resolutions. One of the high-resolution timers will occupy a CPU core,
     /// which consumes more performance. Allows creation of multiple timers.
@@ -151,21 +161,16 @@ namespace PsychoUnity.Manager
             }
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         private bool VerifyTimer(string name)
         {
-            if (_timersDic.ContainsKey(name)) return true;
-            Debug.Log($"Timer {name} does not exist");
+            if (_timersDic.ContainsKey(name))
+            {
+                return true;
+            }
+
+            Debug.Log($"Timer {name} does`t exist");
             return false;
-
-        }
-
-        /// <summary>
-        /// Timer type: If a high-precision timer is required, select the HighResolution type
-        /// </summary>
-        public enum TimerType
-        {
-            Normal,
-            HighResolution
         }
     }
 
@@ -184,7 +189,6 @@ namespace PsychoUnity.Manager
         internal abstract void Stop();
 
         internal abstract void Destroy();
-
     }
 
     internal class TimerNormal : TimerBase
@@ -194,7 +198,7 @@ namespace PsychoUnity.Manager
         private int _delay;
         private int _times;
         private UnityAction _action;
-        
+
         // Timer basic status
         private bool _isTiming;
         private bool _isPause;
@@ -205,10 +209,10 @@ namespace PsychoUnity.Manager
 
         private long _startTime; // Delay or timing start time
         private long _pauseTime; // Pause time
-        
+
         private long _remainTime; // Remaining delay after pause is triggered during delay
         private long _remainDelayTime; // Remaining delay after pause is triggered during timing
-        
+
         private bool _hasDelay; // If delay is required, record the delay status
         private int _count; // Records the current timing times
 
@@ -223,13 +227,13 @@ namespace PsychoUnity.Manager
         internal override void Start()
         {
             if (_isTiming) return;
-            
+
             _cts = new CancellationTokenSource();
-            
+
             _remainTime = _duration;
             _remainDelayTime = _delay;
             _count = 0;
-            
+
             _taskHandler = Timing(_cts.Token);
             _isTiming = true;
         }
@@ -247,15 +251,15 @@ namespace PsychoUnity.Manager
         internal override void Pause()
         {
             if (!_isTiming) return; // Check whether is still timing
-            
+
             if (_isPause) return; // Check whether is has been pause
-            
+
             _cts.Cancel();
             _isPause = true;
 
             // Records the status at pause
             _pauseTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-            
+
             if (_delay > 0 && !_hasDelay)
             {
                 _remainDelayTime -= (_pauseTime - _startTime);
@@ -263,10 +267,10 @@ namespace PsychoUnity.Manager
             else
             {
                 _remainDelayTime = 0;
-                _remainTime -= ( _pauseTime - _startTime);
+                _remainTime -= (_pauseTime - _startTime);
             }
-            
-            Debug.Log($"{_remainTime}, {_remainDelayTime}, {_pauseTime}, {_startTime}");
+
+            // Debug.Log($"{_remainTime}, {_remainDelayTime}, {_pauseTime}, {_startTime}");
         }
 
         internal override void Continue()
@@ -274,24 +278,24 @@ namespace PsychoUnity.Manager
             if (!_isTiming) return;
 
             if (!_isPause) return;
-            
+
             _cts = new CancellationTokenSource();
             _taskHandler = Timing(_cts.Token);
             _isPause = false;
-
         }
 
-        internal override void Destroy(){
+        internal override void Destroy()
+        {
             _cts.Cancel();
             _taskHandler.Dispose();
         }
-        
+
         private async Task Timing(CancellationToken cancellationToken)
         {
             if (_remainDelayTime > 0)
             {
                 _startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                
+
                 // Detecting pause signal
                 try
                 {
@@ -301,11 +305,12 @@ namespace PsychoUnity.Manager
                 {
                     if (exception is TaskCanceledException)
                     {
-                        Debug.Log($"Delaying start time: {_startTime}, pause time: {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
+                        // Debug.Log(
+                        //     $"Delaying start time: {_startTime}, pause time: {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
                         return;
                     }
                 }
-                
+
                 _hasDelay = true;
             }
 
@@ -313,7 +318,7 @@ namespace PsychoUnity.Manager
             while (_count < _times || _times == -1)
             {
                 _startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                
+
                 // Detecting pause signal
                 try
                 {
@@ -323,11 +328,12 @@ namespace PsychoUnity.Manager
                 {
                     if (exception is TaskCanceledException)
                     {
-                        Debug.Log($"Timing start time: {_startTime}, pause time: {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
+                        // Debug.Log(
+                        //     $"Timing start time: {_startTime}, pause time: {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
                         return;
                     }
                 }
-                
+
                 _action.Invoke();
                 _count++;
                 _remainTime = _duration;
@@ -344,7 +350,7 @@ namespace PsychoUnity.Manager
         private int _delay;
         private int _times; // Times
         private UnityAction _action;
-        
+
         private readonly Thread _timingThread;
         private bool _keepThread;
         private bool _startTiming;
@@ -412,15 +418,15 @@ namespace PsychoUnity.Manager
         private void Timing()
         {
             SetCPUCore();
-            
+
             var count = 0;
-            
+
             while (_keepThread)
             {
                 WaitForTiming();
-                
+
                 Delay();
-                
+
                 MainTiming(ref count);
             }
         }
@@ -455,6 +461,7 @@ namespace PsychoUnity.Manager
                 }
             }
         }
+
         private void MainTiming(ref int count)
         {
             var duration = _duration;
@@ -467,6 +474,7 @@ namespace PsychoUnity.Manager
                     duration = remainTime;
                     QueryPerformanceCounter(ref _startPoint);
                 }
+
                 remainTime = duration - (_endPoint - _startPoint);
                 QueryPerformanceCounter(ref _endPoint);
                 if (remainTime > 0) continue;
@@ -475,16 +483,16 @@ namespace PsychoUnity.Manager
                 QueryPerformanceCounter(ref _startPoint);
             }
         }
-        
+
         [DllImport("kernel32.dll")]
         public static extern bool QueryPerformanceCounter(ref long lpPerformanceCount);
 
         [DllImport("kernel32.dll")]
         public static extern bool QueryPerformanceFrequency(out long lpFrequency);
-        
+
         [DllImport("kernel32.dll")]
         private static extern IntPtr SetThreadAffinityMask(IntPtr hThread, IntPtr dwThreadAffinityMask);
-        
+
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetCurrentThread();
     }
