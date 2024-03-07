@@ -7,7 +7,7 @@ namespace Samples.TimerHighResolution.Scripts
     {
         private void Awake()
         {
-            TimerManager.Instance.Create("001", TimerManager.TimerType.HighResolution);
+            TimerManager.Instance.Create("001", TimerType.HighResolution);
         }
 
         private void OnDestroy()

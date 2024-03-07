@@ -7,8 +7,8 @@ namespace Samples.Timer.Scripts
     {
         private void Start()
         {
-            TimerManager.Instance.Create("001", TimerManager.TimerType.Normal);
-            TimerManager.Instance.Create("002", TimerManager.TimerType.Normal);
+            TimerManager.Instance.Create("001", TimerType.Normal);
+            TimerManager.Instance.Create("002", TimerType.Normal);
             TimerManager.Instance.SetSchedule("001", 5000, 10000, 5, Task1);
             // Infinite loop when times == -1
             TimerManager.Instance.SetSchedule("002", 1000, 0, -1, Task3);
