@@ -8,6 +8,27 @@ using UnityEngine;
 
 namespace PsychoUnity.Manager
 {
+
+    /// <summary>
+    /// Choose the type of network entity to be create
+    /// </summary>
+    public enum NetWorkType
+    {
+        TcpServer,
+        TcpClient,
+        UdpServer,
+        UdpClient
+    }
+
+    /// <summary>
+    /// Choose the work mode of network entity
+    /// </summary>
+    public enum WorkMode
+    {
+        Manual,
+        Auto
+    }
+    
     /// <summary>
     /// Network communication manager now support the management of four different network
     /// entities : `TCPServer`, `TCPClient`, `UDPServer`, and `UDPClient`
@@ -659,25 +680,5 @@ namespace PsychoUnity.Manager
                 throw;
             }
         }
-    }
-
-    /// <summary>
-    /// Choose the type of network entity to be create
-    /// </summary>
-    public enum NetWorkType
-    {
-        TcpServer,
-        TcpClient,
-        UdpServer,
-        UdpClient
-    }
-
-    /// <summary>
-    /// Choose the work mode of network entity
-    /// </summary>
-    public enum WorkMode
-    {
-        Manual,
-        Auto
     }
 }
