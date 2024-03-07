@@ -235,10 +235,11 @@ namespace PsychoUnity.Manager
     internal class NetworkServer : NetworkComBase
     {
         private IPEndPoint IpEndPoint { get; }
-        private Socket Listener { get; }
+        private Socket Listener { get; set; }
 
         private readonly string _entityName;
         private readonly WorkMode _workMode;
+        private readonly NetWorkType _netWorkType;
 
         // The connection with client
         private Socket Handler { get; set; }
@@ -252,28 +253,35 @@ namespace PsychoUnity.Manager
             IpEndPoint = new IPEndPoint(IPAddress.Parse(hostName), port);
             _entityName = entityName;
             _workMode = mode;
+            _netWorkType = type;
 
-            Listener = type switch
-            {
-                NetWorkType.TcpServer => new Socket(IpEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp),
-                NetWorkType.TcpClient => throw new ArgumentOutOfRangeException(nameof(type), type, null),
-                NetWorkType.UdpServer => new Socket(IpEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Udp),
-                NetWorkType.UdpClient => throw new ArgumentOutOfRangeException(nameof(type), type, null),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-
-            Listener.Bind(IpEndPoint);
-            Listener.Listen(100);
         }
 
         internal override async Task InitAsync()
         {
             try
             {
+                // Create listener
+                Listener = _netWorkType switch
+                {
+                    NetWorkType.TcpServer => new Socket(IpEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp),
+                    NetWorkType.TcpClient => throw new ArgumentOutOfRangeException(nameof(_netWorkType), _netWorkType, null),
+                    NetWorkType.UdpServer => new Socket(IpEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Udp),
+                    NetWorkType.UdpClient => throw new ArgumentOutOfRangeException(nameof(_netWorkType), _netWorkType, null),
+                    _ => throw new ArgumentOutOfRangeException(nameof(_netWorkType), _netWorkType, null)
+                };
+
+                Listener.Bind(IpEndPoint);
+                Listener.Listen(100);
+                
+                // Create communication stream
                 Debug.Log("Waiting for connection...");
                 Handler = await Listener.AcceptAsync();
+                // Set connected state true
                 Connected = true;
                 Debug.Log("Connected");
+                
+                // Determine whether to enable Auto mode
                 if (_workMode == WorkMode.Auto)
                 {
                     var _ = this.ListeningAsync();
@@ -383,9 +391,10 @@ namespace PsychoUnity.Manager
 
         internal override void Stop()
         {
-            if (Handler == null) return;
-            Handler.Shutdown(SocketShutdown.Both);
-            Handler.Close();
+            Connected = false;
+            Handler?.Shutdown(SocketShutdown.Both);
+            Handler?.Close();
+            Listener.Close();
         }
 
         internal override async Task ListeningAsync()
@@ -450,10 +459,11 @@ namespace PsychoUnity.Manager
     {
         private IPEndPoint IpEndPoint { get; }
 
-        private Socket Client { get; }
+        private Socket Client { get; set; }
 
         private readonly string _entityName;
         private readonly WorkMode _workMode;
+        private readonly NetWorkType _netWorkType;
 
         private bool Connected { get; set; }
 
@@ -463,25 +473,32 @@ namespace PsychoUnity.Manager
             IpEndPoint = new IPEndPoint(IPAddress.Parse(hostName), port);
             _entityName = entityName;
             _workMode = mode;
+            _netWorkType = type;
 
-            Client = type switch
-            {
-                NetWorkType.TcpClient => new Socket(IpEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp),
-                NetWorkType.UdpClient => new Socket(IpEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Udp),
-                NetWorkType.TcpServer => throw new ArgumentOutOfRangeException(nameof(type), type, null),
-                NetWorkType.UdpServer => throw new ArgumentOutOfRangeException(nameof(type), type, null),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
         }
 
         internal override async Task InitAsync()
         {
             try
             {
+                // Create client socket
+                Client = _netWorkType switch
+                {
+                    NetWorkType.TcpClient => new Socket(IpEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp),
+                    NetWorkType.UdpClient => new Socket(IpEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Udp),
+                    NetWorkType.TcpServer => throw new ArgumentOutOfRangeException(nameof(_netWorkType), _netWorkType, null),
+                    NetWorkType.UdpServer => throw new ArgumentOutOfRangeException(nameof(_netWorkType), _netWorkType, null),
+                    _ => throw new ArgumentOutOfRangeException(nameof(_netWorkType), _netWorkType, null)
+                };
+                
+                // Create communication stream with server
                 Debug.Log("Waiting for connection...");
                 await Client.ConnectAsync(IpEndPoint);
-                Connected = Client.Connected;
+                // Set connect state to true
+                Connected = true;
                 Debug.Log("Connected");
+                
+                // Determine werther to enable Auto mode
                 if (_workMode == WorkMode.Auto)
                 {
                     await ListeningAsync();
@@ -592,7 +609,7 @@ namespace PsychoUnity.Manager
 
         internal override void Stop()
         {
-            Client.Shutdown(SocketShutdown.Both);
+            Connected = false;
             Client.Close();
         }
 
