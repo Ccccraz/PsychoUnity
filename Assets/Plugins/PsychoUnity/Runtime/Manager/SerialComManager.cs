@@ -8,11 +8,29 @@ namespace PsychoUnity.Manager
     /// <summary>
     /// Serial Device Manager
     /// </summary>
-    [Obsolete]
     public class SerialComManager : Singleton<SerialComManager>
     {
         private readonly Dictionary<string, SerialPort> _serialComDic = new Dictionary<string, SerialPort>();
-        
+
+        /// <summary>
+        /// Add a serial device
+        /// </summary>
+        /// <param name="deviceName"> Define a name for the serial device </param>
+        public bool AddSerialCom(string deviceName)
+        {
+            var serialPort = CheckSerialPort(deviceName);
+
+            if (serialPort != null)
+            {
+                Debug.Log("Serial port is existed");
+                return false;
+            }
+
+            _serialComDic.Add(deviceName, new SerialPort());
+
+            return true;
+        }
+
         /// <summary>
         /// Add and setup a serial device
         /// </summary>
@@ -21,41 +39,52 @@ namespace PsychoUnity.Manager
         /// <param name="baudRate"> baud rate </param>
         public void AddSerialCom(string serialComName, string portName, int baudRate)
         {
-            AddSerialCom(serialComName);
-            SetSerialCom(serialComName, portName, baudRate);
+            if (!AddSerialCom(serialComName)) return;
+
+            _serialComDic[serialComName].PortName = portName;
+            _serialComDic[serialComName].BaudRate = baudRate;
         }
 
         /// <summary>
-        /// Add a serial device
+        /// complete config struct for serialPort
         /// </summary>
-        /// <param name="deviceName"> Define a name for the serial device </param>
-        public void AddSerialCom(string deviceName)
+        public struct SerialPortConfig
         {
-            if (_serialComDic.ContainsKey(deviceName))
+            public readonly string SerialComName;
+            public readonly string PortName;
+            public readonly int BaudRate;
+            public readonly int DataBits;
+            public readonly StopBits StopBits;
+            public readonly Parity ParityBits;
+            public readonly Handshake FlowCtrl;
+
+            public SerialPortConfig(string serialComName, string portName, int baudRate, int dataBits = 8,
+                StopBits stopBits = StopBits.None, Parity parityBits = Parity.None, Handshake flowCtrl = Handshake.None)
             {
-                Debug.Log("Device is already exists");
-            }
-            else
-            {
-                _serialComDic.Add(deviceName, new SerialPort());
+                SerialComName = serialComName;
+                PortName = portName;
+                BaudRate = baudRate;
+                DataBits = dataBits;
+                StopBits = stopBits;
+                ParityBits = parityBits;
+                FlowCtrl = flowCtrl;
             }
         }
 
         /// <summary>
-        /// Setup a serial device
+        /// Serial port setup
         /// </summary>
-        /// <param name="serialComName"> target device name </param>
-        /// <param name="portName"> communication port name </param>
-        /// <param name="baudRate"> baud rate </param>
-        public void SetSerialCom(string serialComName, string portName, int baudRate)
+        /// <param name="config">your config</param>
+        public void SetSerialCom(SerialPortConfig config)
         {
-            if (!_serialComDic.TryGetValue(serialComName, out var serialPort))
-            {
-                Debug.Log("SerialPort does not exist that you want to config");
-                return;
-            }
-            serialPort.PortName = portName;
-            serialPort.BaudRate = baudRate;
+            var serialPort = CheckSerialPort(config.SerialComName);
+            if (serialPort == null) return;
+            serialPort.PortName = config.PortName;
+            serialPort.BaudRate = config.BaudRate;
+            serialPort.DataBits = config.DataBits;
+            serialPort.StopBits = config.StopBits;
+            serialPort.Parity = config.ParityBits;
+            serialPort.Handshake = config.FlowCtrl;
         }
 
         /// <summary>
@@ -64,7 +93,8 @@ namespace PsychoUnity.Manager
         /// <param name="serialComName"> target device name </param>
         public void Open(string serialComName)
         {
-            if (_serialComDic.TryGetValue(serialComName, out var serialPort))
+            var serialPort = CheckSerialPort(serialComName);
+            if (serialPort == null)
             {
                 Debug.Log("SerialPort was not exist that you want to open");
                 return;
@@ -100,13 +130,14 @@ namespace PsychoUnity.Manager
         /// <param name="msgSize"> message size </param>
         public void Write(string serialComName, ref byte[] msgBuf, int msgSize)
         {
-            if (CheckSerialPort(serialComName))
+            try
             {
                 _serialComDic[serialComName].Write(msgBuf, 0, msgSize);
             }
-            else
+            catch (Exception e)
             {
-                Debug.Log($"Can't write to {serialComName}");
+                Console.WriteLine(e);
+                throw;
             }
         }
 
@@ -118,29 +149,15 @@ namespace PsychoUnity.Manager
         /// <param name="msgSize"> message size </param>
         public void Read(string serialComName, ref byte[] msgBuf, int msgSize)
         {
-            _serialComDic[serialComName].Read(msgBuf, 0, msgSize);
-        }
-
-        /// <summary>
-        /// Check that the serial device is exists
-        /// </summary>
-        /// <param name="serialComName"> target device name </param>
-        /// <returns> Returns true if it exists, false otherwise </returns>
-        public bool CheckSerialPort(string serialComName)
-        {
-            if (!_serialComDic.TryGetValue(serialComName, out var serialPort))
+            try
             {
-                Debug.Log("SerialPort does not exist that you want to write");
-                return false;
+                _serialComDic[serialComName].Read(msgBuf, 0, msgSize);
             }
-
-            if (!serialPort.IsOpen)
+            catch (Exception e)
             {
-                Debug.Log("SerialPort was not open that you want to write");
-                return false;
+                Console.WriteLine(e);
+                throw;
             }
-
-            return true;
         }
 
         /// <summary>
@@ -149,10 +166,11 @@ namespace PsychoUnity.Manager
         /// <param name="serialComName"> target device name </param>
         public void Close(string serialComName)
         {
-            if (!_serialComDic.TryGetValue(serialComName, out var serialPort)) return;
+            var serialPort = CheckSerialPort(serialComName);
+            if (serialPort == null) return;
 
             if (!serialPort.IsOpen) return;
-            
+
             serialPort.Close();
         }
 
@@ -165,8 +183,19 @@ namespace PsychoUnity.Manager
             {
                 Close(item.Key);
             }
-            
+
             _serialComDic.Clear();
+        }
+
+        /// <summary>
+        /// Check that the serial device is exists
+        /// </summary>
+        /// <param name="serialComName"> target device name </param>
+        /// <returns> Returns true if it exists, false otherwise </returns>
+        private SerialPort CheckSerialPort(string serialComName)
+        {
+            _serialComDic.TryGetValue(serialComName, out var serialPort);
+            return serialPort;
         }
     }
 }
