@@ -22,7 +22,7 @@ namespace PsychoUnity.Manager
 
             if (serialPort != null)
             {
-                Debug.Log("Serial port is existed");
+                Debug.LogWarning("Serial port is existed");
                 return false;
             }
 
@@ -78,7 +78,11 @@ namespace PsychoUnity.Manager
         public void SetSerialCom(SerialPortConfig config)
         {
             var serialPort = CheckSerialPort(config.SerialComName);
-            if (serialPort == null) return;
+            if (serialPort == null)
+            {
+                Debug.LogError("Serial port doesn't exist");
+                return;
+            };
             serialPort.PortName = config.PortName;
             serialPort.BaudRate = config.BaudRate;
             serialPort.DataBits = config.DataBits;
@@ -96,19 +100,19 @@ namespace PsychoUnity.Manager
             var serialPort = CheckSerialPort(serialComName);
             if (serialPort == null)
             {
-                Debug.Log("SerialPort was not exist that you want to open");
+                Debug.LogWarning("SerialPort was not exist that you want to open");
                 return;
             }
 
             if (serialPort.PortName == null || serialPort.BaudRate == 0)
             {
-                Debug.Log("SerialPort has not enough parameter that you want to open");
+                Debug.LogWarning("SerialPort has not enough parameter that you want to open");
                 return;
             }
 
             if (serialPort.IsOpen)
             {
-                Debug.Log("SerialPort is already opened");
+                Debug.LogWarning("SerialPort is already opened");
                 return;
             }
 
@@ -118,7 +122,7 @@ namespace PsychoUnity.Manager
             }
             catch (Exception e)
             {
-                Debug.Log(e.Message);
+                Debug.LogError(e.Message);
             }
         }
 
@@ -194,8 +198,7 @@ namespace PsychoUnity.Manager
         /// <returns> Returns true if it exists, false otherwise </returns>
         private SerialPort CheckSerialPort(string serialComName)
         {
-            _serialComDic.TryGetValue(serialComName, out var serialPort);
-            return serialPort;
+            return _serialComDic.GetValueOrDefault(serialComName);
         }
     }
 }
