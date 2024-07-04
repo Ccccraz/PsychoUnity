@@ -1,13 +1,13 @@
 {
     "name": "com.ccccraz.psychounity",
     "displayName": "PsychoUnity",
-    "author": { "name": "Ccccraz", "url": "https://github.com/Ccccraz" },
+    "author": { "name": "ccccraz", "url": "https://github.com/ccccraz" },
     "version": "0.1.4",
     "unity": "2022.3",
     "description": "A Unity-based development framework for designing behavioral experiments",
     "documentationUrl": "https://psychounity.org/",
     "keywords": [ "neuroscience" ],
-    "license": "GPL-3.0-or-later",
+    "license": "LGPL-3.0-or-later",
     "dependencies": {},
     "samples":[
         {
