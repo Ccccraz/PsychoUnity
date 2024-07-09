@@ -91,6 +91,41 @@ namespace PsychoUnity.Manager
             serialPort.Handshake = config.FlowCtrl;
         }
 
+        public void EnableDtr(string serialComName, bool enable)
+        {
+            var serialPort = CheckSerialPort(serialComName);
+
+            if (serialPort == null)
+            {
+                Debug.LogError("Serial port doesn't exist");
+                return;
+            }
+
+            serialPort.DtrEnable = enable;
+        }
+
+        public void EnableRts(string serialComName, bool enable)
+        {
+            var serialPort = CheckSerialPort(serialComName);
+
+            if (serialPort == null)
+            {
+                Debug.LogError("Serial port doesn't exist");
+                return;
+            }
+
+            serialPort.RtsEnable = enable;
+        }
+
+        public SerialPort GetSerialPort(string serialComName)
+        {
+            var serialPort = CheckSerialPort(serialComName);
+
+            if (serialPort != null) return serialPort;
+            Debug.LogError("Serial port doesn't exist");
+            return null;
+        }
+
         /// <summary>
         /// Open a serial device
         /// </summary>
