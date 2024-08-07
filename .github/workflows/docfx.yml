@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - '.github/workflows/docfx.yml'
-      - 'Assets/Plugins/PsychoUnity/Runtime/**/*.cs'
+      - 'Runtime/**/*.cs'
       - 'docs/**'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
