@@ -1,0 +1,49 @@
+{
+    "name": "com.ccccraz.psychounity",
+    "displayName": "PsychoUnity",
+    "author": { "name": "ccccraz", "url": "https://github.com/ccccraz" },
+    "version": "0.1.4",
+    "unity": "2022.3",
+    "description": "A Unity-based development framework for designing behavioral experiments",
+    "documentationUrl": "https://psychounity.org/",
+    "keywords": [ "neuroscience" ],
+    "license": "LGPL-3.0-or-later",
+    "dependencies": {},
+    "samples":[
+        {
+            "displayName": "Timer Node",
+            "description": "Sample of the Timer Node",
+            "path": "Samples~/TimerNode"
+        },
+        {
+            "displayName": "Timer Manager",
+            "description": "Sample of the Normal Timer",
+            "path": "Samples~/Timer"
+        },
+        {
+            "displayName": "Timer High Resolution Manager",
+            "description": "Sample of the High Resolution Timer",
+            "path": "Samples~/TimerHighResolution"
+        },
+        {
+            "displayName": "Recorder Node",
+            "description": "How to use Recorder Node to generate samples with standardized output",
+            "path": "Samples~/RecorderNode"
+        },
+        {
+            "displayName": "Recorder Manager",
+            "description": "How to use RecorderManager to generate samples with standardized output",
+            "path": "Samples~/Recorder"
+        },
+        {
+            "displayName": "Events Manager",
+            "description": "Sample of how to use EventManager for global message notificationr",
+            "path": "Samples~/Events"
+        },
+        {
+            "displayName": "Tcp communication",
+            "description": "Sample of how to use TcpComManager for communication",
+            "path": "Samples~/TCPCom"
+        }
+    ]
+}
