@@ -3,7 +3,7 @@
     {
       "src": [
         {
-          "src": "../Assets/Plugins/PsychoUnity/Runtime",
+          "src": "../Runtime",
           "files": [
             "**/*.cs"
           ]
