@@ -10,7 +10,7 @@ namespace PsychoUnity.Manager
 {
 
     /// <summary>
-    /// Choose the type of network entity to be create
+    /// Choose the type of network entity to be created
     /// </summary>
     public enum NetWorkType
     {
@@ -46,7 +46,7 @@ namespace PsychoUnity.Manager
         /// <param name="type">the type of the entity that you want to create</param>
         /// <param name="mode"></param>
         /// <exception cref="InvalidOperationException">The network entity named {the passed name} already exists</exception>
-        /// <exception cref="ArgumentOutOfRangeException">The passed type does`t exists</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The passed type doesn't exist</exception>
         public void Create(string name, string hostName, int port, NetWorkType type, WorkMode mode = WorkMode.Auto)
         {
             if (_networkDic.ContainsKey(name))
