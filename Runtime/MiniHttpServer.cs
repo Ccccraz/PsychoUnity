@@ -41,11 +41,6 @@ namespace PsychoUnity
                     Debug.LogWarning(e);
                     throw;
                 }
-                finally
-                {
-                    _isRunning = false;
-                    _listener.Abort();
-                }
             }
         }
         
@@ -54,7 +49,13 @@ namespace PsychoUnity
             var request = context.Request;
             var url = request.Url.AbsolutePath;
             
-            EventManager.Instance.EventTrigger(url, request);
+            EventManager.Instance.EventTrigger(url, context);
+        }
+
+        public void Close()
+        {
+            _isRunning = false;
+            _listener.Abort();
         }
     }
 }
