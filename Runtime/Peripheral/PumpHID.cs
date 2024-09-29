@@ -1,15 +1,18 @@
+using System.Linq;
 using System.Runtime.InteropServices;
+using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 
 namespace PsychoUnity.Peripheral
 {
-    [StructLayout(LayoutKind.Explicit, Size = kSize)]
+    [StructLayout(LayoutKind.Explicit, Size = KSize)]
     public struct PumpHidCmd : IInputDeviceCommandInfo
     {
-        public static FourCC Type => new('H', 'I', 'D', 'O');
-        internal const int id = 0;
-        internal const int kSize = InputDeviceCommand.BaseCommandSize + 21;
+        private static FourCC Type => new('H', 'I', 'D', 'O');
+        private const int ID = 0;
+        private const int KSize = InputDeviceCommand.BaseCommandSize + 21;
 
         [FieldOffset(0)] public InputDeviceCommand baseCommand;
 
@@ -37,14 +40,55 @@ namespace PsychoUnity.Peripheral
         {
             return new PumpHidCmd
             {
-                baseCommand = new InputDeviceCommand(Type, kSize),
-                reportId = id,
+                baseCommand = new InputDeviceCommand(Type, KSize),
+                reportId = ID,
                 startCmd = start,
                 durationCmd = duration,
                 stopCmd = stop,
                 speedCmd = speed,
                 reverseCmd = reverse
             };
+        }
+    }
+
+    public static class SimiaPump
+    {
+        private static Joystick GetPump()
+        {
+            var devices = Joystick.all;
+            return devices.FirstOrDefault(device => device.name.Contains("simia pump"));
+        }
+
+        public static void GiveReward()
+        {
+            var pump = GetPump();
+            if (pump == null) return;
+            var cmd = PumpHidCmd.Create(1, 0, 0, 0, 0);
+            pump.device.ExecuteCommand(ref cmd);
+        }
+
+        public static void GiveReward(int duration)
+        {
+            var pump = GetPump();
+            if (pump == null) return;
+            var cmd = PumpHidCmd.Create(1, duration, 0, 0, 0);
+            pump.device.ExecuteCommand(ref cmd);
+        }
+
+        public static void StopReward()
+        {
+            var pump = GetPump();
+            if (pump == null) return;
+            var cmd = PumpHidCmd.Create(0, 0, 1, 0, 0);
+            pump.device.ExecuteCommand(ref cmd);
+        }
+
+        public static void Reverse()
+        {
+            var pump = GetPump();
+            if (pump == null) return;
+            var cmd = PumpHidCmd.Create(0, 0, 0, 0, 1);
+            pump.device.ExecuteCommand(ref cmd);
         }
     }
 }
