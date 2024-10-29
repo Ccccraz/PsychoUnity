@@ -32,7 +32,7 @@ namespace PsychoUnity.Node
                 var data = flow.GetValue<IDictionary>(Data);
                 var custom = flow.GetValue<string>(Custom);
                 var prefix = flow.GetValue<string>(Prefix);
-                PsychoUnity.Recorder.CreateRecorderNode(recorderName, data, custom, prefix);
+                PsychoUnity.RecorderIns.CreateRecorderNode(recorderName, data, custom, prefix);
                 return OutputTrigger;
             });
 
