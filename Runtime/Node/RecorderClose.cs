@@ -15,7 +15,7 @@ namespace PsychoUnity.Node
             
             ControlInput(" ", flow =>
             {
-                PsychoUnity.Recorder.Destroy(flow.GetValue<string>(Recorder));
+                PsychoUnity.RecorderIns.Destroy(flow.GetValue<string>(Recorder));
                 return OutputTrigger;
             });
 
