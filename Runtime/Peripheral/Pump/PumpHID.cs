@@ -1,12 +1,15 @@
 using System.Linq;
 using System.Runtime.InteropServices;
-using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 
-namespace PsychoUnity.Peripheral
+namespace PsychoUnity.Peripheral.Pump
 {
+    /// <summary>
+    /// This is the structure of the HID report for the pump
+    /// Create a command using the Create method
+    /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = KSize)]
     public struct PumpHidCmd : IInputDeviceCommandInfo
     {
@@ -36,6 +39,16 @@ namespace PsychoUnity.Peripheral
 
         public FourCC typeStatic => Type;
 
+
+        /// <summary>
+        /// Initializes a new pump command
+        /// </summary>
+        /// <param name="start">Indicates whether to start the pump. Set to 1 to start the pump.</param>
+        /// <param name="duration">Specifies the duration for which the pump should run, in milliseconds. Set to 0 for indefinite operation.</param>
+        /// <param name="stop">Indicates whether to stop the pump. Set to 1 to stop the pump.</param>
+        /// <param name="speed">Specifies the speed at which the pump should operate.</param>
+        /// <param name="reverse">Specifies whether to reverse the direction of the pump's operation. Set to true to reverse the direction.</param>
+        /// <returns>pump command</returns>
         public static PumpHidCmd Create(float start, float duration, float stop, float speed, float reverse)
         {
             return new PumpHidCmd
@@ -51,14 +64,24 @@ namespace PsychoUnity.Peripheral
         }
     }
 
+    /// <summary>
+    /// Controls the pump using the HID interface
+    /// </summary>
     public static class SimiaPump
     {
+        /// <summary>
+        /// Finds the pump device
+        /// </summary>
+        /// <returns>pump device</returns>
         private static Joystick GetPump()
         {
             var devices = Joystick.all;
             return devices.FirstOrDefault(device => device.name.Contains("simia pump"));
         }
 
+        /// <summary>
+        /// Gives a reward to the animal indefinitely
+        /// </summary>
         public static void GiveReward()
         {
             var pump = GetPump();
@@ -67,6 +90,10 @@ namespace PsychoUnity.Peripheral
             pump.device.ExecuteCommand(ref cmd);
         }
 
+        /// <summary>
+        /// Gives a reward to the animal for a specified duration
+        /// </summary>
+        /// <param name="duration"> duration in milliseconds </param>
         public static void GiveReward(int duration)
         {
             var pump = GetPump();
@@ -75,6 +102,9 @@ namespace PsychoUnity.Peripheral
             pump.device.ExecuteCommand(ref cmd);
         }
 
+        /// <summary>
+        /// Stops the reward
+        /// </summary>
         public static void StopReward()
         {
             var pump = GetPump();
@@ -83,6 +113,9 @@ namespace PsychoUnity.Peripheral
             pump.device.ExecuteCommand(ref cmd);
         }
 
+        /// <summary>
+        /// Reverse the pump rotation direction
+        /// </summary>
         public static void Reverse()
         {
             var pump = GetPump();
