@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 using PsychoUnity.Manager;
+using Unity.Plastic.Newtonsoft.Json;
+using Unity.Plastic.Newtonsoft.Json.Converters;
 using UnityEngine;
 
 namespace PsychoUnity.Manager
@@ -11,8 +13,8 @@ namespace PsychoUnity.Manager
     {
         private readonly Dictionary<string, RecorderBase> _recordDic = new();
 
-        public void Create(string recorderName, object data, [CanBeNull] string additional = null,
-            [CanBeNull] string prefix = null)
+        public void Create(string recorderName, object data, string lab, string subject, string number,
+            string collection, [CanBeNull] string filename = null, [CanBeNull] string prefix = null)
         {
             if (_recordDic.ContainsKey(recorderName))
             {
@@ -20,7 +22,10 @@ namespace PsychoUnity.Manager
             }
             else
             {
-                _recordDic.Add(recorderName, new Recorder(data, recorderName, additional, prefix));
+                _recordDic.Add(recorderName,
+                    filename == null
+                        ? new Recorder(data, lab, subject, number, collection, recorderName)
+                        : new Recorder(data, lab, subject, number, collection, filename));
             }
         }
 
@@ -43,12 +48,12 @@ namespace PsychoUnity.Manager
 
         internal static class Utils
         {
-            internal static string GenFile(string recorderName, [CanBeNull] string additional = null,
-                [CanBeNull] string prefix = null)
+            internal static string GenFile(string lab, string subject, string number, string collection,
+                string filename, [CanBeNull] string prefix = null)
             {
                 // TODO: Check prefix validity
-                var path = Path.Combine(prefix ?? Application.persistentDataPath, $"{DateTime.Now:yyyyMMdd}",
-                    $"{recorderName}_{additional}_{DateTime.Now:HHmmss}.json");
+                var path = Path.Combine(prefix ?? Application.dataPath, lab, "Subjects", subject,
+                    $"{DateTime.Now:yyyy-MM-dd}", number, collection, $"{filename}.json");
 
                 if (File.Exists(path)) return path;
 
@@ -91,11 +96,15 @@ internal class Recorder : RecorderBase
     private readonly object _data;
     private readonly string _output;
     private bool _firstLine = true;
+    private readonly JsonSerializerSettings _settings = new();
 
-    internal Recorder(object data, string recorder, string additional, string prefix)
+
+    internal Recorder(object data, string lab, string subject, string number, string collection,
+        string filename, [CanBeNull] string prefix = null)
     {
-        _output = RecorderManager.Utils.GenFile(recorder, additional, prefix);
+        _output = RecorderManager.Utils.GenFile(lab, subject, number, collection, filename, prefix);
         _data = data;
+        _settings.Converters.Add(new StringEnumConverter());
     }
 
     private string ToJson(object data)
@@ -103,10 +112,10 @@ internal class Recorder : RecorderBase
         if (_firstLine)
         {
             _firstLine = false;
-            return JsonUtility.ToJson(data);
+            return JsonConvert.SerializeObject(data, _settings);
         }
 
-        var result = JsonUtility.ToJson(data);
+        var result = JsonConvert.SerializeObject(data, _settings);
         return $",\n{result}";
     }
 
@@ -120,6 +129,6 @@ internal class Recorder : RecorderBase
     internal override void Close()
     {
         using var writer = new StreamWriter(_output, true);
-        writer.WriteLine("]");
+        writer.WriteLine("\n]");
     }
 }
